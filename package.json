@@ -1,0 +1,21 @@
+{
+  "name": "clothing-exchange-marketplace",
+  "version": "1.0.0",
+  "description": "Clothing Exchange & Swap Marketplace",
+  "scripts": {
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev": "node ./node_modules/npm-run-all/bin/npm-run-all/index.js --parallel dev:server dev:client",
+    "seed": "cd server && npm run seed",
+    "test:server": "cd server && npm test",
+    "test:client": "cd client && npm test",
+    "test": "npm run test:server && npm run test:client",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:client && npm run build:server"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

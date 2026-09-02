@@ -1,0 +1,141 @@
+const User = require('../models/User');
+const ClothingItem = require('../models/ClothingItem');
+const SwapRequest = require('../models/SwapRequest');
+const Dispute = require('../models/Dispute');
+
+// @desc    Get admin dashboard stats
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+exports.getAdminStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalItems = await ClothingItem.countDocuments();
+    const totalSwaps = await SwapRequest.countDocuments();
+    const activeDisputes = await Dispute.countDocuments({ status: 'open' });
+
+    // Aggregations for charts
+    const swapStatusData = await SwapRequest.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+
+    const categoryData = await ClothingItem.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.json({
+      totalUsers,
+      totalItems,
+      totalSwaps,
+      activeDisputes,
+      swapStatusData,
+      categoryData
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all users
+// @route   GET /api/admin/users
+// @access  Private/Admin
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all listings
+// @route   GET /api/admin/listings
+// @access  Private/Admin
+exports.getAllListings = async (req, res) => {
+  try {
+    const listings = await ClothingItem.find()
+      .populate('owner', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all swaps
+// @route   GET /api/admin/swaps
+// @access  Private/Admin
+exports.getAllSwaps = async (req, res) => {
+  try {
+    const swaps = await SwapRequest.find()
+      .populate('requester', 'name email')
+      .populate('receiver', 'name email')
+      .populate('offeredItem', 'title images')
+      .populate('requestedItem', 'title images')
+      .sort({ createdAt: -1 });
+    res.json(swaps);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all disputes
+// @route   GET /api/admin/disputes
+// @access  Private/Admin
+exports.getDisputes = async (req, res) => {
+  try {
+    const disputes = await Dispute.find()
+      .populate('swapRequest')
+      .populate('raisedBy', 'name email')
+      .sort({ createdAt: -1 });
+      
+    res.json(disputes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Resolve a dispute
+// @route   PUT /api/admin/disputes/:id/resolve
+// @access  Private/Admin
+exports.resolveDispute = async (req, res) => {
+  try {
+    const { resolutionNotes } = req.body;
+    
+    const dispute = await Dispute.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: 'resolved',
+        resolvedAt: Date.now(),
+        resolutionNotes
+      },
+      { new: true }
+    );
+
+    if (!dispute) return res.status(404).json({ message: 'Dispute not found' });
+    
+    res.json(dispute);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Block or unblock a user
+// @route   PUT /api/admin/users/:id/block
+// @access  Private/Admin
+exports.toggleUserBlock = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (user.role === 'admin') return res.status(400).json({ message: 'Cannot block admins' });
+    
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+    
+    res.json({ message: `User ${user.isBlocked ? 'blocked' : 'unblocked'} successfully`, user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
