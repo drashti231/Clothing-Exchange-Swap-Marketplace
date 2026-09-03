@@ -1,22 +1,58 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import { 
   User, 
   Bell, 
   Lock, 
   Shield, 
   Trash2, 
-  Save, 
-  CheckCircle2 
+  Save 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Settings() {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('account');
   const [isSaving, setIsSaving] = useState(false);
+
+  const [settings, setSettings] = useState({
+    language: 'English (US)',
+    timezone: '(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi',
+    notifications: {
+      newSwapRequests: true,
+      directMessages: true,
+      marketingNews: false
+    },
+    privacy: {
+      publicProfileVisibility: true
+    }
+  });
+
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  useEffect(() => {
+    if (user && user.settings) {
+      setSettings({
+        language: user.settings.language || 'English (US)',
+        timezone: user.settings.timezone || '(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi',
+        notifications: {
+          newSwapRequests: user.settings.notifications?.newSwapRequests ?? true,
+          directMessages: user.settings.notifications?.directMessages ?? true,
+          marketingNews: user.settings.notifications?.marketingNews ?? false
+        },
+        privacy: {
+          publicProfileVisibility: user.settings.privacy?.publicProfileVisibility ?? true
+        }
+      });
+    }
+  }, [user]);
 
   if (!user) {
     return (
@@ -27,14 +63,88 @@ export default function Settings() {
     );
   }
 
-  const handleSave = (e) => {
+  const handleSavePreferences = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    // Simulate API call for settings update
-    setTimeout(() => {
+    try {
+      await api.put('/users/settings', {
+        language: settings.language,
+        timezone: settings.timezone
+      });
+      toast.success('Preferences updated successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update preferences');
+    } finally {
       setIsSaving(false);
-      toast.success('Settings updated successfully!');
-    }, 1000);
+    }
+  };
+
+  const handleSaveNotifications = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await api.put('/users/settings', {
+        notifications: settings.notifications
+      });
+      toast.success('Notifications updated successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update notifications');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePrivacyToggle = async (e) => {
+    const newValue = e.target.checked;
+    setSettings(prev => ({
+      ...prev,
+      privacy: { ...prev.privacy, publicProfileVisibility: newValue }
+    }));
+    try {
+      await api.put('/users/settings', {
+        privacy: { publicProfileVisibility: newValue }
+      });
+      toast.success('Privacy settings updated');
+    } catch (error) {
+      toast.error('Failed to update privacy');
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      return toast.error("New passwords don't match");
+    }
+    if (passwords.newPassword.length < 6) {
+      return toast.error("Password must be at least 6 characters");
+    }
+
+    setIsSaving(true);
+    try {
+      await api.put('/users/password', {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword
+      });
+      toast.success('Password updated successfully!');
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update password');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        await api.delete('/users/account');
+        toast.success("Account deleted successfully");
+        logout();
+        navigate('/');
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Failed to delete account');
+      }
+    }
   };
 
   const tabs = [
@@ -90,7 +200,7 @@ export default function Settings() {
           <div className="bg-white rounded-2xl shadow-sm border border-border-subtle p-6 md:p-8 min-h-[400px]">
             
             {activeTab === 'account' && (
-              <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+              <form onSubmit={handleSavePreferences} className="space-y-6 max-w-2xl">
                 <h2 className="text-xl font-bold text-brand-dark border-b border-gray-100 pb-4 mb-6">Account Preferences</h2>
                 
                 <div className="space-y-4">
@@ -102,7 +212,11 @@ export default function Settings() {
 
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Language</label>
-                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none font-medium">
+                    <select 
+                      value={settings.language}
+                      onChange={(e) => setSettings({...settings, language: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none font-medium"
+                    >
                       <option>English (US)</option>
                       <option>Hindi</option>
                       <option>Gujarati</option>
@@ -111,7 +225,11 @@ export default function Settings() {
 
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Timezone</label>
-                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none font-medium">
+                    <select 
+                      value={settings.timezone}
+                      onChange={(e) => setSettings({...settings, timezone: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none font-medium"
+                    >
                       <option>(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
                       <option>(GMT+00:00) London</option>
                     </select>
@@ -127,12 +245,17 @@ export default function Settings() {
             )}
 
             {activeTab === 'notifications' && (
-              <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+              <form onSubmit={handleSaveNotifications} className="space-y-6 max-w-2xl">
                 <h2 className="text-xl font-bold text-brand-dark border-b border-gray-100 pb-4 mb-6">Notification Settings</h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <input type="checkbox" defaultChecked className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" />
+                    <input 
+                      type="checkbox" 
+                      checked={settings.notifications.newSwapRequests} 
+                      onChange={(e) => setSettings({...settings, notifications: {...settings.notifications, newSwapRequests: e.target.checked}})}
+                      className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" 
+                    />
                     <div>
                       <p className="font-bold text-sm text-brand-dark">New Swap Requests</p>
                       <p className="text-xs text-text-muted mt-1">Get notified when someone wants to swap with you.</p>
@@ -140,7 +263,12 @@ export default function Settings() {
                   </div>
 
                   <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <input type="checkbox" defaultChecked className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" />
+                    <input 
+                      type="checkbox" 
+                      checked={settings.notifications.directMessages}
+                      onChange={(e) => setSettings({...settings, notifications: {...settings.notifications, directMessages: e.target.checked}})}
+                      className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" 
+                    />
                     <div>
                       <p className="font-bold text-sm text-brand-dark">Direct Messages</p>
                       <p className="text-xs text-text-muted mt-1">Receive an email when you get a new message in chat.</p>
@@ -148,7 +276,12 @@ export default function Settings() {
                   </div>
 
                   <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <input type="checkbox" className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" />
+                    <input 
+                      type="checkbox" 
+                      checked={settings.notifications.marketingNews}
+                      onChange={(e) => setSettings({...settings, notifications: {...settings.notifications, marketingNews: e.target.checked}})}
+                      className="mt-1 w-5 h-5 rounded text-danger-tag focus:ring-danger-tag" 
+                    />
                     <div>
                       <p className="font-bold text-sm text-brand-dark">Marketing & News</p>
                       <p className="text-xs text-text-muted mt-1">Receive weekly newsletters and sustainability tips.</p>
@@ -165,21 +298,42 @@ export default function Settings() {
             )}
 
             {activeTab === 'security' && (
-              <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+              <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-2xl">
                 <h2 className="text-xl font-bold text-brand-dark border-b border-gray-100 pb-4 mb-6">Security & Login</h2>
                 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Current Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" />
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.currentPassword}
+                      onChange={e => setPasswords({...passwords, currentPassword: e.target.value})}
+                      placeholder="••••••••" 
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" />
+                    <input 
+                      type="password"
+                      required 
+                      value={passwords.newPassword}
+                      onChange={e => setPasswords({...passwords, newPassword: e.target.value})}
+                      placeholder="••••••••" 
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Confirm New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" />
+                    <input 
+                      type="password"
+                      required
+                      value={passwords.confirmPassword}
+                      onChange={e => setPasswords({...passwords, confirmPassword: e.target.value})}
+                      placeholder="••••••••" 
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-danger-tag outline-none" 
+                    />
                   </div>
                 </div>
 
@@ -202,7 +356,14 @@ export default function Settings() {
                       <p className="text-xs text-text-muted mt-1">Allow other users to see your swap history and reviews.</p>
                     </div>
                     <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" name="toggle" id="toggle1" defaultChecked className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:border-danger-tag checked:translate-x-6 checked:bg-danger-tag"/>
+                        <input 
+                          type="checkbox" 
+                          name="toggle" 
+                          id="toggle1" 
+                          checked={settings.privacy.publicProfileVisibility}
+                          onChange={handlePrivacyToggle}
+                          className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-transform duration-200 ease-in-out checked:border-danger-tag checked:translate-x-6 checked:bg-danger-tag"
+                        />
                         <label htmlFor="toggle1" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                     </div>
                   </div>
@@ -211,7 +372,7 @@ export default function Settings() {
                 <div className="pt-8 border-t border-red-100">
                   <h3 className="text-lg font-bold text-red-600 mb-2">Danger Zone</h3>
                   <p className="text-sm text-text-muted mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-                  <button className="flex items-center space-x-2 text-red-600 font-bold text-sm px-4 py-2 border border-red-200 rounded-lg hover:bg-red-50 transition">
+                  <button onClick={handleDeleteAccount} className="flex items-center space-x-2 text-red-600 font-bold text-sm px-4 py-2 border border-red-200 rounded-lg hover:bg-red-50 transition">
                     <Trash2 className="w-4 h-4" />
                     <span>Delete Account</span>
                   </button>

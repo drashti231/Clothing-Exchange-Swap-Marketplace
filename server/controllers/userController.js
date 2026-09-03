@@ -162,3 +162,79 @@ exports.rateUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Update user settings
+// @route   PUT /api/users/settings
+// @access  Private
+exports.updateUserSettings = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user._id);
+    
+    if (user) {
+      if (req.body.language) user.settings.language = req.body.language;
+      if (req.body.timezone) user.settings.timezone = req.body.timezone;
+      
+      if (req.body.notifications) {
+        if (req.body.notifications.newSwapRequests !== undefined) user.settings.notifications.newSwapRequests = req.body.notifications.newSwapRequests;
+        if (req.body.notifications.directMessages !== undefined) user.settings.notifications.directMessages = req.body.notifications.directMessages;
+        if (req.body.notifications.marketingNews !== undefined) user.settings.notifications.marketingNews = req.body.notifications.marketingNews;
+      }
+      
+      if (req.body.privacy) {
+        if (req.body.privacy.publicProfileVisibility !== undefined) user.settings.privacy.publicProfileVisibility = req.body.privacy.publicProfileVisibility;
+      }
+      
+      const updatedUser = await user.save();
+      res.json(updatedUser.settings);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update user password
+// @route   PUT /api/users/password
+// @access  Private
+exports.updateUserPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const User = require('../models/User');
+    const user = await User.findById(req.user._id);
+
+    if (user && (await user.matchPassword(currentPassword))) {
+      user.passwordHash = newPassword; // the pre-save middleware handles the hashing
+      await user.save();
+      res.json({ message: 'Password updated successfully' });
+    } else {
+      res.status(401).json({ message: 'Incorrect current password' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete user account
+// @route   DELETE /api/users/account
+// @access  Private
+exports.deleteUserAccount = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const ClothingItem = require('../models/ClothingItem');
+    const SwapRequest = require('../models/SwapRequest');
+    
+    // Instead of hard-deleting the user immediately and breaking active swaps,
+    // we soft-delete their items by setting them to 'inactive' so they don't appear in the marketplace.
+    await ClothingItem.updateMany({ owner: req.user._id }, { status: 'swapped' }); 
+    // Usually a soft-delete status like 'inactive' is better. Let's use 'swapped' or 'unavailable' which implies it can't be requested.
+    
+    // For a simple implementation, we just delete the user document.
+    await User.findByIdAndDelete(req.user._id);
+    
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

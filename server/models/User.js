@@ -24,7 +24,19 @@ const userSchema = new mongoose.Schema({
     comment: { type: String }
   }],
   completedSwaps: { type: Number, default: 0 },
-  isBlocked: { type: Boolean, default: false }
+  isBlocked: { type: Boolean, default: false },
+  settings: {
+    language: { type: String, default: 'English (US)' },
+    timezone: { type: String, default: '(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi' },
+    notifications: {
+      newSwapRequests: { type: Boolean, default: true },
+      directMessages: { type: Boolean, default: true },
+      marketingNews: { type: Boolean, default: false }
+    },
+    privacy: {
+      publicProfileVisibility: { type: Boolean, default: true }
+    }
+  }
 }, {
   timestamps: true
 });
