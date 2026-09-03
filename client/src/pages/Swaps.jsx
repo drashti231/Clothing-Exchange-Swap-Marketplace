@@ -11,6 +11,7 @@ export default function Swaps() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -61,6 +62,18 @@ export default function Swaps() {
         return <span className="text-brand-primary font-semibold">Completed</span>;
       default:
         return <span className="text-text-muted font-semibold capitalize">{status}</span>;
+    }
+  };
+
+  const handleUpdateStatus = async (swapId, newStatus) => {
+    try {
+      setActionLoading(swapId);
+      await api.put(`/swaps/${swapId}/status`, { status: newStatus });
+      fetchSwaps(); // Refresh the list
+    } catch (err) {
+      setError(err.response?.data?.message || `Failed to ${newStatus} swap`);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -125,22 +138,54 @@ export default function Swaps() {
             {isReceived ? 'Requested by' : 'Sent to'} <span className="font-bold text-brand-dark">{partner.name}</span> • {new Date(swap.createdAt).toLocaleDateString()}
           </p>
           <div className="flex gap-3 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none px-5 py-1.5 border border-border-subtle rounded-md text-xs font-semibold text-text-main hover:bg-white hover:shadow-sm transition-all">
-              View
-            </button>
-            <button 
-              onClick={async () => {
-                try {
-                  await api.post('/chat', { swapRequestId: swap._id });
-                  navigate('/chat');
-                } catch (err) {
-                  navigate('/chat');
-                }
-              }}
-              className="flex-1 sm:flex-none px-5 py-1.5 bg-brand-dark text-white rounded-md text-xs font-semibold hover:bg-brand-primary hover:shadow-sm transition-all"
-            >
-              Chat
-            </button>
+            {swap.status === 'pending' && isReceived ? (
+              <>
+                <button 
+                  onClick={() => handleUpdateStatus(swap._id, 'rejected')}
+                  disabled={actionLoading === swap._id}
+                  className="flex-1 sm:flex-none px-5 py-1.5 border border-danger-tag text-danger-tag rounded-md text-xs font-semibold hover:bg-red-50 transition-all disabled:opacity-50"
+                >
+                  Reject
+                </button>
+                <button 
+                  onClick={() => handleUpdateStatus(swap._id, 'accepted')}
+                  disabled={actionLoading === swap._id}
+                  className="flex-1 sm:flex-none px-5 py-1.5 bg-success-tag text-white rounded-md text-xs font-semibold hover:bg-green-600 shadow-sm transition-all disabled:opacity-50"
+                >
+                  {actionLoading === swap._id ? 'Updating...' : 'Accept'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="flex-1 sm:flex-none px-5 py-1.5 border border-border-subtle rounded-md text-xs font-semibold text-text-main hover:bg-white hover:shadow-sm transition-all">
+                  View
+                </button>
+                {(swap.status === 'accepted' || swap.status === 'pending') && (
+                  <button 
+                    onClick={async () => {
+                      try {
+                        await api.post('/chat', { swapRequestId: swap._id });
+                        navigate('/chat');
+                      } catch (err) {
+                        navigate('/chat');
+                      }
+                    }}
+                    className="flex-1 sm:flex-none px-5 py-1.5 bg-brand-dark text-white rounded-md text-xs font-semibold hover:bg-brand-primary hover:shadow-sm transition-all"
+                  >
+                    Chat
+                  </button>
+                )}
+                {swap.status === 'accepted' && (
+                  <button 
+                    onClick={() => handleUpdateStatus(swap._id, 'completed')}
+                    disabled={actionLoading === swap._id}
+                    className="flex-1 sm:flex-none px-5 py-1.5 bg-brand-primary text-white rounded-md text-xs font-semibold hover:bg-green-700 hover:shadow-sm transition-all disabled:opacity-50"
+                  >
+                    Complete
+                  </button>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
