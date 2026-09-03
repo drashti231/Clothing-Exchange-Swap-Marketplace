@@ -19,6 +19,8 @@ import TrustSafety from './pages/TrustSafety'
 import FAQ from './pages/FAQ'
 import ContactUs from './pages/ContactUs'
 import AboutUs from './pages/AboutUs'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 import { Toaster } from 'react-hot-toast'
 
 function App() {
@@ -49,6 +51,8 @@ function App() {
             <Route path="/trust-safety" element={<TrustSafety />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
           </Routes>
         </main>
         <Footer />
