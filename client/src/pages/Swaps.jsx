@@ -34,7 +34,11 @@ export default function Swaps() {
   const fetchSwaps = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get('/swaps', { params: { type: filter } });
+      let params = { type: filter };
+      if (['active', 'completed', 'cancelled'].includes(filter)) {
+        params = { type: 'all', status: filter };
+      }
+      const { data } = await api.get('/swaps', { params });
       setSwaps(data);
     } catch (err) {
       console.error('Fetch swaps error:', err);
@@ -146,7 +150,10 @@ export default function Swaps() {
   const tabs = [
     { id: 'all', label: 'All' },
     { id: 'received', label: 'Incoming' },
-    { id: 'sent', label: 'Outgoing' }
+    { id: 'sent', label: 'Outgoing' },
+    { id: 'active', label: 'Active' },
+    { id: 'completed', label: 'Completed' },
+    { id: 'cancelled', label: 'Cancelled' }
   ];
 
   return (
@@ -169,10 +176,6 @@ export default function Swaps() {
               {tab.label}
             </button>
           ))}
-          {/* Mock tabs for exact UI match */}
-          <button disabled className="px-4 py-2 text-sm font-semibold text-text-muted opacity-50 cursor-not-allowed">Active</button>
-          <button disabled className="px-4 py-2 text-sm font-semibold text-text-muted opacity-50 cursor-not-allowed">Completed</button>
-          <button disabled className="px-4 py-2 text-sm font-semibold text-text-muted opacity-50 cursor-not-allowed">Cancelled</button>
         </div>
 
         {error && (

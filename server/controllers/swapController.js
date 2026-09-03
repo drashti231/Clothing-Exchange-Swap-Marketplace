@@ -118,6 +118,16 @@ exports.getSwapRequests = async (req, res) => {
       query.$or = [{ requester: req.user._id }, { receiver: req.user._id }];
     }
 
+    if (req.query.status) {
+      if (req.query.status === 'active') {
+        query.status = { $in: ['pending', 'accepted'] };
+      } else if (req.query.status === 'cancelled') {
+        query.status = { $in: ['cancelled', 'rejected'] };
+      } else {
+        query.status = req.query.status;
+      }
+    }
+
     const swapRequests = await SwapRequest.find(query)
       .populate('requestedItem', 'title images status estimatedSwapPoints')
       .populate('offeredItem', 'title images status estimatedSwapPoints')
