@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import AdminLogin from './pages/AdminLogin'
 import Admin from './pages/Admin'
 import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 import HowItWorks from './pages/HowItWorks'
 import SwapGuidelines from './pages/SwapGuidelines'
 import TrustSafety from './pages/TrustSafety'
@@ -44,7 +45,7 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/swap-guidelines" element={<SwapGuidelines />} />
