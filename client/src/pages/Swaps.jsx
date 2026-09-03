@@ -12,6 +12,7 @@ export default function Swaps() {
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
+  const [selectedSwap, setSelectedSwap] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -157,7 +158,10 @@ export default function Swaps() {
               </>
             ) : (
               <>
-                <button className="flex-1 sm:flex-none px-5 py-1.5 border border-border-subtle rounded-md text-xs font-semibold text-text-main hover:bg-white hover:shadow-sm transition-all">
+                <button 
+                  onClick={() => setSelectedSwap(swap)}
+                  className="flex-1 sm:flex-none px-5 py-1.5 border border-border-subtle rounded-md text-xs font-semibold text-text-main hover:bg-white hover:shadow-sm transition-all"
+                >
                   View
                 </button>
                 {(swap.status === 'accepted' || swap.status === 'pending') && (
@@ -192,6 +196,54 @@ export default function Swaps() {
     );
   };
 
+  const renderSwapDetailsModal = () => {
+    if (!selectedSwap) return null;
+    const isReceived = selectedSwap.receiver._id === user._id;
+    const partner = isReceived ? selectedSwap.requester : selectedSwap.receiver;
+
+    return (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
+        <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+            <h2 className="text-xl font-bold text-brand-dark">Swap Details</h2>
+            <button onClick={() => setSelectedSwap(null)} className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-6 space-y-4">
+            <div>
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Status</span>
+              <div className="mt-1">{getStatusDisplay(selectedSwap.status)}</div>
+            </div>
+            <div>
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Partner</span>
+              <p className="font-medium text-brand-dark mt-1">{partner.name}</p>
+            </div>
+            <div>
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Delivery Method</span>
+              <p className="font-medium text-gray-800 mt-1 capitalize">{selectedSwap.deliveryMethod || 'Not specified'}</p>
+            </div>
+            <div>
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Initial Message</span>
+              <p className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mt-1 italic">
+                {selectedSwap.initialMessage || 'No initial message attached.'}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Requested On</span>
+              <p className="text-sm text-gray-800 mt-1">{new Date(selectedSwap.createdAt).toLocaleString()}</p>
+            </div>
+          </div>
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+             <button onClick={() => setSelectedSwap(null)} className="px-6 py-2 bg-brand-dark text-white rounded-md font-bold text-sm hover:bg-brand-primary transition">
+               Close
+             </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const tabs = [
     { id: 'all', label: 'All' },
     { id: 'received', label: 'Incoming' },
@@ -203,6 +255,7 @@ export default function Swaps() {
 
   return (
     <div className="bg-bg-main min-h-screen py-8">
+      {renderSwapDetailsModal()}
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
         <h1 className="text-2xl font-bold text-brand-dark mb-6">My Swaps</h1>
