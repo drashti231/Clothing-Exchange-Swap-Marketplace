@@ -287,7 +287,10 @@ export default function ItemDetail() {
                       </p>
                     </div>
                   </div>
-                  <button className="border border-border-subtle text-text-main text-xs font-semibold px-4 py-2 rounded-md hover:bg-bg-main transition">
+                  <button 
+                    onClick={() => navigate(`/users/${item.owner._id}`)}
+                    className="border border-border-subtle text-text-main text-xs font-semibold px-4 py-2 rounded-md hover:bg-bg-main transition"
+                  >
                     View Profile
                   </button>
                 </div>

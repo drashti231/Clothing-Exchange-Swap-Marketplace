@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getDashboardStats, getNotifications, markNotificationRead, updateUserProfile, rateUser, updateUserSettings, updateUserPassword, deleteUserAccount } = require('../controllers/userController');
+const { getPublicProfile, getDashboardStats, getNotifications, markNotificationRead, updateUserProfile, rateUser, updateUserSettings, updateUserPassword, deleteUserAccount } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
+
+// Public routes
+router.get('/:id/profile', getPublicProfile);
 
 router.use(protect);
 

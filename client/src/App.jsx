@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import AdminLogin from './pages/AdminLogin'
 import Admin from './pages/Admin'
 import Profile from './pages/Profile'
+import PublicProfile from './pages/PublicProfile'
 import Settings from './pages/Settings'
 import Community from './pages/Community'
 import GroupDetail from './pages/GroupDetail'
@@ -47,6 +48,7 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/users/:id" element={<PublicProfile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/community" element={<Community />} />
             <Route path="/community/:id" element={<GroupDetail />} />

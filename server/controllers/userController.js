@@ -1,6 +1,29 @@
 const ClothingItem = require('../models/ClothingItem');
 const SwapRequest = require('../models/SwapRequest');
 const Notification = require('../models/Notification');
+const User = require('../models/User');
+
+// @desc    Get user public profile
+// @route   GET /api/users/:id/profile
+// @access  Public
+exports.getPublicProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-passwordHash -email -phone -settings');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const listings = await ClothingItem.find({ owner: user._id, status: 'available' });
+
+    res.json({
+      user,
+      listings
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // @desc    Get user dashboard stats
 // @route   GET /api/users/dashboard
