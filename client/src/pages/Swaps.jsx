@@ -215,7 +215,7 @@ export default function Swaps() {
                     Chat
                   </button>
                 )}
-                {swap.status === 'accepted' && swap.deliveryMethod === 'courier' && (
+                {swap.status === 'accepted' && swap.deliveryMethod?.toLowerCase() === 'shipping' && (
                   <button 
                     onClick={() => handlePayment(swap._id)}
                     disabled={actionLoading === swap._id}
