@@ -12,9 +12,9 @@ exports.createCheckoutSession = async (req, res) => {
     const swap = await SwapRequest.findById(swapId).populate('offeredItem requestedItem');
     if (!swap) return res.status(404).json({ message: 'Swap not found' });
 
-    // Ensure swap is accepted and uses courier
-    if (swap.status !== 'accepted' || swap.deliveryMethod !== 'courier') {
-      return res.status(400).json({ message: 'Payment only available for accepted swaps using courier' });
+    // Ensure swap is accepted and uses shipping
+    if (swap.status !== 'accepted' || swap.deliveryMethod?.toLowerCase() !== 'shipping') {
+      return res.status(400).json({ message: 'Payment only available for accepted swaps using Shipping' });
     }
 
     // In a real application, we would create a Stripe Checkout Session
