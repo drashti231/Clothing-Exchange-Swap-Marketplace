@@ -7,7 +7,8 @@ const {
   getAllSwaps,
   getDisputes, 
   resolveDispute, 
-  toggleUserBlock 
+  toggleUserBlock,
+  toggleListingVerification
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -20,5 +21,6 @@ router.get('/swaps', getAllSwaps);
 router.get('/disputes', getDisputes);
 router.put('/disputes/:id/resolve', resolveDispute);
 router.put('/users/:id/block', toggleUserBlock);
+router.put('/listings/:id/verify', toggleListingVerification);
 
 module.exports = router;

@@ -131,6 +131,37 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sustainability Impact Tracker */}
+        <div className="lg:col-span-3 bg-gradient-to-r from-brand-dark to-brand-primary rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden">
+          <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
+            <Shirt className="w-64 h-64 transform translate-x-1/4 -translate-y-1/4" />
+          </div>
+          <div className="relative z-10">
+            <h2 className="text-xl font-bold mb-6 flex items-center">
+              <Star className="w-6 h-6 mr-2 text-warning" /> Your Sustainability Impact
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/20">
+              <div className="py-4 md:py-0">
+                <p className="text-brand-light font-medium text-sm mb-1">Water Saved</p>
+                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 2700} <span className="text-lg font-normal opacity-80">Liters</span></p>
+                <p className="text-xs text-brand-light mt-2 opacity-80">~1 cotton shirt = 2,700L</p>
+              </div>
+              <div className="py-4 md:py-0">
+                <p className="text-brand-light font-medium text-sm mb-1">Carbon Emissions Reduced</p>
+                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 2.1} <span className="text-lg font-normal opacity-80">kg CO2</span></p>
+                <p className="text-xs text-brand-light mt-2 opacity-80">prevented from entering atmosphere</p>
+              </div>
+              <div className="py-4 md:py-0">
+                <p className="text-brand-light font-medium text-sm mb-1">Textile Waste Diverted</p>
+                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 0.3} <span className="text-lg font-normal opacity-80">kg</span></p>
+                <p className="text-xs text-brand-light mt-2 opacity-80">kept out of landfills</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Main Content Area */}

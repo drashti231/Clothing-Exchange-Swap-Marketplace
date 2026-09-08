@@ -139,3 +139,20 @@ exports.toggleUserBlock = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Verify or unverify a listing
+// @route   PUT /api/admin/listings/:id/verify
+// @access  Private/Admin
+exports.toggleListingVerification = async (req, res) => {
+  try {
+    const listing = await ClothingItem.findById(req.params.id);
+    if (!listing) return res.status(404).json({ message: 'Listing not found' });
+    
+    listing.isVerified = !listing.isVerified;
+    await listing.save();
+    
+    res.json({ message: `Listing ${listing.isVerified ? 'verified' : 'unverified'} successfully`, listing });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

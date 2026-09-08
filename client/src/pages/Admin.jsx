@@ -308,6 +308,16 @@ export default function Admin() {
     }
   };
 
+  const handleVerifyListing = async (listingId, isVerified) => {
+    try {
+      await api.put(`/admin/listings/${listingId}/verify`);
+      toast.success(isVerified ? "Listing unverified" : "Listing verified");
+      setListings(listings.map(l => l._id === listingId ? { ...l, isVerified: !isVerified } : l));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update listing verification status");
+    }
+  };
+
   const sidebarLinks = [
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Users', icon: Users },
@@ -547,7 +557,8 @@ export default function Admin() {
                     <th className="px-6 py-4 font-semibold">Category</th>
                     <th className="px-6 py-4 font-semibold">Condition</th>
                     <th className="px-6 py-4 font-semibold">Owner</th>
-                    <th className="px-6 py-4 font-semibold text-right">Date</th>
+                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-subtle">
@@ -557,7 +568,21 @@ export default function Admin() {
                       <td className="px-6 py-4 capitalize">{item.category}</td>
                       <td className="px-6 py-4 capitalize">{item.condition}</td>
                       <td className="px-6 py-4">{item.owner?.name || 'Unknown'}</td>
-                      <td className="px-6 py-4 text-right">{new Date(item.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        {item.isVerified ? (
+                          <span className="flex items-center text-green-600 font-medium text-xs"><CheckCircle className="w-3 h-3 mr-1"/> Verified</span>
+                        ) : (
+                          <span className="text-gray-500 font-medium text-xs">Unverified</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button 
+                          onClick={() => handleVerifyListing(item._id, item.isVerified)}
+                          className={`px-3 py-1.5 rounded-md text-xs font-bold ${item.isVerified ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                        >
+                          {item.isVerified ? 'Unverify' : 'Verify'}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
