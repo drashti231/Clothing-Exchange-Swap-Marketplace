@@ -99,7 +99,7 @@ export default function Dashboard() {
         
         <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
           <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-orange-50 text-warning rounded-xl group-hover:scale-110 transition-transform"><Clock className="w-6 h-6" /></div>
+            <div className="p-3 bg-orange-50 text-warning-tag rounded-xl group-hover:scale-110 transition-transform"><Clock className="w-6 h-6" /></div>
           </div>
           <div>
             <p className="text-text-muted text-sm font-medium mb-1">Pending Requests</p>
@@ -110,7 +110,7 @@ export default function Dashboard() {
 
         <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
           <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-green-50 text-success rounded-xl group-hover:scale-110 transition-transform"><CheckCircle className="w-6 h-6" /></div>
+            <div className="p-3 bg-green-50 text-success-tag rounded-xl group-hover:scale-110 transition-transform"><CheckCircle className="w-6 h-6" /></div>
           </div>
           <div>
             <p className="text-text-muted text-sm font-medium mb-1">Completed Swaps</p>
@@ -139,7 +139,7 @@ export default function Dashboard() {
           </div>
           <div className="relative z-10">
             <h2 className="text-xl font-bold mb-6 flex items-center">
-              <Star className="w-6 h-6 mr-2 text-warning" /> Your Sustainability Impact
+              <Star className="w-6 h-6 mr-2 text-warning-tag" /> Your Sustainability Impact
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/20">
               <div className="py-4 md:py-0">
@@ -185,7 +185,7 @@ export default function Dashboard() {
                   <p className="text-xs font-semibold mt-2 text-brand-dark">Requested</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-warning text-white flex items-center justify-center font-bold shadow-md z-10"><ArrowRightLeft className="w-5 h-5" /></div>
+                  <div className="w-10 h-10 rounded-full bg-warning-tag text-white flex items-center justify-center font-bold shadow-md z-10"><ArrowRightLeft className="w-5 h-5" /></div>
                   <p className="text-xs font-semibold mt-2 text-brand-dark">Swapping</p>
                 </div>
                 <div className="flex flex-col items-center opacity-50">
