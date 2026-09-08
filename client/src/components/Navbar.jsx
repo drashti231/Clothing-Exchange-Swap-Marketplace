@@ -107,11 +107,13 @@ export default function Navbar() {
               <>
                 <NavLink to="/how-it-works">How it Works</NavLink>
                 <NavLink to="/about-us">About Us</NavLink>
+                <NavLink to="/community">Community</NavLink>
               </>
             ) : (
               <>
                 <NavLink to="/how-it-works">How it Works</NavLink>
                 <NavLink to="/about-us">About Us</NavLink>
+                <NavLink to="/community">Community</NavLink>
               </>
             )}
             {/* The image shows Marketplace, List an Item, My Swaps, Messages for logged in */}
@@ -281,6 +283,7 @@ export default function Navbar() {
             <Link to="/list-item" className={`block px-4 py-3 rounded-md text-sm font-medium ${isActive('/list-item') ? 'bg-brand-light text-brand-dark' : 'text-text-muted'}`}>List an Item</Link>
             <Link to="/how-it-works" className={`block px-4 py-3 rounded-md text-sm font-medium ${isActive('/how-it-works') ? 'bg-brand-light text-brand-dark' : 'text-text-muted'}`}>How it Works</Link>
             <Link to="/about-us" className={`block px-4 py-3 rounded-md text-sm font-medium ${isActive('/about-us') ? 'bg-brand-light text-brand-dark' : 'text-text-muted'}`}>About Us</Link>
+            <Link to="/community" className={`block px-4 py-3 rounded-md text-sm font-medium ${isActive('/community') ? 'bg-brand-light text-brand-dark' : 'text-text-muted'}`}>Community</Link>
             
             {user ? (
               <>

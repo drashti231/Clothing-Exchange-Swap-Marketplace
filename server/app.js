@@ -41,6 +41,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const swapRoutes = require('./routes/swapRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -49,6 +51,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/swaps', swapRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

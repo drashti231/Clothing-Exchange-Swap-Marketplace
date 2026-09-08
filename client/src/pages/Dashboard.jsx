@@ -9,19 +9,22 @@ export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [dashRes, notifRes] = await Promise.all([
+        const [dashRes, notifRes, recRes] = await Promise.all([
           api.get('/users/dashboard'),
-          api.get('/users/notifications')
+          api.get('/users/notifications'),
+          api.get('/items/user/recommendations')
         ]);
         setStats(dashRes.data.stats);
         setRecentItems(dashRes.data.recentItems);
         setNotifications(notifRes.data);
+        setRecommendations(recRes.data);
       } catch (err) {
         console.error("Failed to fetch dashboard data");
       } finally {
@@ -232,6 +235,27 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+
+          {/* AI Recommendations */}
+          {recommendations.length > 0 && (
+            <div className="pt-8">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-brand-dark flex items-center"><Star className="w-5 h-5 mr-2 text-warning-tag" /> Recommended For You</h2>
+                  <p className="text-sm text-text-muted mt-1">Based on your style and size preferences</p>
+                </div>
+                <Link to="/marketplace" className="text-sm font-semibold text-danger-tag hover:text-orange-700 transition flex items-center">
+                  See More <ChevronRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {recommendations.slice(0, 4).map(item => (
+                  <ItemCard key={item._id} item={item} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sidebar Area */}

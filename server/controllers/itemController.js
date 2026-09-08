@@ -258,3 +258,57 @@ exports.getUserListings = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get AI-powered recommendations for user
+// @route   GET /api/items/user/recommendations
+// @access  Private
+exports.getRecommendations = async (req, res) => {
+  try {
+    // Basic recommendation logic based on user's size and items they've interacted with/own
+    // 1. Get user's own items to find their usual size and preferred categories
+    const userItems = await ClothingItem.find({ owner: req.user._id });
+    
+    let preferredSizes = [];
+    let preferredCategories = [];
+    
+    if (userItems.length > 0) {
+      preferredSizes = [...new Set(userItems.map(item => item.size))];
+      preferredCategories = [...new Set(userItems.map(item => item.category))];
+    } else {
+      // Default fallback if user has no items (or we could use user profile preferences if they existed)
+      preferredSizes = ['M', 'L', 'Free Size'];
+      preferredCategories = ['tops', 'bottoms', 'outerwear'];
+    }
+
+    // Find items matching sizes and categories, excluding user's own items
+    const recommendations = await ClothingItem.find({
+      owner: { $ne: req.user._id },
+      status: 'available',
+      $or: [
+        { size: { $in: preferredSizes } },
+        { category: { $in: preferredCategories } }
+      ]
+    })
+    .populate('owner', 'name avatar rating')
+    .sort({ createdAt: -1 }) // Newest matching items first
+    .limit(8);
+
+    // If we didn't find enough recommendations, pad with random popular items
+    if (recommendations.length < 4) {
+      const popularItems = await ClothingItem.find({
+        owner: { $ne: req.user._id },
+        status: 'available',
+        _id: { $nin: recommendations.map(r => r._id) }
+      })
+      .populate('owner', 'name avatar rating')
+      .sort({ estimatedSwapPoints: -1 })
+      .limit(8 - recommendations.length);
+      
+      recommendations.push(...popularItems);
+    }
+
+    res.json(recommendations);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

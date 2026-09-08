@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 import { ArrowRightLeft, MessageCircle, AlertTriangle, RefreshCw, X, Check, ShieldCheck, MapPin, Truck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 export default function Swaps() {
   const { user } = useContext(AuthContext);
@@ -13,6 +14,27 @@ export default function Swaps() {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedSwap, setSelectedSwap] = useState(null);
+
+  // Check URL for payment success/cancel
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const paymentSwapId = urlParams.get('swapId');
+    
+    if (paymentStatus === 'success' && paymentSwapId) {
+      toast.success('Payment completed successfully!');
+      // Confirm payment in backend
+      api.put('/payments/confirm', { swapId: paymentSwapId })
+        .then(() => fetchSwaps())
+        .catch(err => console.error(err));
+      
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (paymentStatus === 'cancelled') {
+      toast.error('Payment was cancelled.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -73,6 +95,20 @@ export default function Swaps() {
       fetchSwaps(); // Refresh the list
     } catch (err) {
       setError(err.response?.data?.message || `Failed to ${newStatus} swap`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handlePayment = async (swapId) => {
+    try {
+      setActionLoading(swapId);
+      const res = await api.post('/payments/create-checkout-session', { swapId });
+      if (res.data.url) {
+        window.location.href = res.data.url; // Redirect to Stripe
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Payment initiation failed');
     } finally {
       setActionLoading(null);
     }
@@ -177,6 +213,15 @@ export default function Swaps() {
                     className="flex-1 sm:flex-none px-5 py-1.5 bg-brand-dark text-white rounded-md text-xs font-semibold hover:bg-brand-primary hover:shadow-sm transition-all"
                   >
                     Chat
+                  </button>
+                )}
+                {swap.status === 'accepted' && swap.deliveryMethod === 'courier' && (
+                  <button 
+                    onClick={() => handlePayment(swap._id)}
+                    disabled={actionLoading === swap._id}
+                    className="flex-1 sm:flex-none px-5 py-1.5 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-700 hover:shadow-sm transition-all disabled:opacity-50"
+                  >
+                    Pay Shipping
                   </button>
                 )}
                 {swap.status === 'accepted' && (
