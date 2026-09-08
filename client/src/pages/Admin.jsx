@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { 
   Users, Shirt, ArrowRightLeft, AlertTriangle, 
   Search, ShieldCheck, LayoutDashboard, FileText, 
-  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar
+  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar, Menu
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -247,6 +247,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [selectedUserForDetails, setSelectedUserForDetails] = useState(null);
   
   const [stats, setStats] = useState(null);
@@ -353,19 +354,22 @@ export default function Admin() {
       />
 
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-border-subtle flex flex-col h-full shadow-sm shrink-0">
-        <div className="h-[72px] flex items-center px-6 border-b border-border-subtle shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-[150] w-64 bg-white border-r border-border-subtle flex flex-col h-full shadow-lg shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-[72px] flex items-center justify-between px-6 border-b border-border-subtle shrink-0">
           <Link to="/" className="flex items-center space-x-2 font-bold text-xl tracking-tight hover:opacity-90 transition text-brand-dark">
             <Shirt className="h-6 w-6 text-brand-primary" fill="currentColor" />
             <span>ReWear <span className="text-brand-primary font-medium text-sm ml-1">Admin</span></span>
           </Link>
+          <button className="md:hidden text-text-muted" onClick={() => setIsMobileSidebarOpen(false)}>
+            <X className="w-6 h-6" />
+          </button>
         </div>
         
         <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto hide-scrollbar">
           {sidebarLinks.map((link) => (
             <button
               key={link.name}
-              onClick={() => setActiveTab(link.name)}
+              onClick={() => { setActiveTab(link.name); setIsMobileSidebarOpen(false); }}
               className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeTab === link.name 
                   ? 'bg-brand-light text-brand-dark shadow-sm' 
@@ -379,11 +383,27 @@ export default function Admin() {
         </nav>
       </aside>
 
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[140] md:hidden" 
+          onClick={() => setIsMobileSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden">
+      <main className="flex-1 flex flex-col h-full overflow-hidden w-full">
         {/* Header */}
-        <header className="h-[72px] bg-white border-b border-border-subtle flex items-center justify-between px-8 shrink-0">
-          <h1 className="text-xl font-bold text-brand-dark">{activeTab}</h1>
+        <header className="h-[72px] bg-white border-b border-border-subtle flex items-center justify-between px-4 sm:px-8 shrink-0">
+          <div className="flex items-center space-x-4">
+            <button 
+              className="md:hidden text-text-muted hover:text-brand-dark focus:outline-none"
+              onClick={() => setIsMobileSidebarOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-lg sm:text-xl font-bold text-brand-dark truncate">{activeTab}</h1>
+          </div>
           
           <div className="flex items-center space-x-6">
             <div className="relative">
@@ -496,7 +516,7 @@ export default function Admin() {
               </div>
             </div>
           ) : activeTab === 'Users' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="bg-gray-50 text-text-muted">
                   <tr>
@@ -549,7 +569,7 @@ export default function Admin() {
               </table>
             </div>
           ) : activeTab === 'Listings' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="bg-gray-50 text-text-muted">
                   <tr>
@@ -589,7 +609,7 @@ export default function Admin() {
               </table>
             </div>
           ) : activeTab === 'Swaps' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="bg-gray-50 text-text-muted">
                   <tr>
@@ -622,7 +642,7 @@ export default function Admin() {
               </table>
             </div>
           ) : activeTab === 'Disputes' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
               {disputes.length === 0 ? (
                 <div className="p-8 text-center text-text-muted">No disputes found.</div>
               ) : (
