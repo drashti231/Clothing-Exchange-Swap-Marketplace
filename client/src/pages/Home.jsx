@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, ShoppingBag, RefreshCw, MapPin, UploadCloud, Search, Heart, ShieldCheck, Leaf, UsersRound, Ban } from 'lucide-react';
+import SwapMatch from '../components/SwapMatch';
 
 export default function Home() {
   const categories = [
@@ -147,6 +148,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Swap Match Interactive Component */}
+      <SwapMatch />
 
       {/* Popular Categories */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-20 animate-fade-in-up delay-200">
