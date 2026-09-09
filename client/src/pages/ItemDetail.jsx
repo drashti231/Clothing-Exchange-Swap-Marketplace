@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
-import { MapPin, RefreshCw, X, AlertTriangle, ShieldCheck, User, Star, ArrowRightLeft, Check, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { MapPin, RefreshCw, X, AlertTriangle, ShieldCheck, User, Star, ArrowRightLeft, Check, Heart, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 import { isFairMatch, calculateSwapPoints } from '../utils/calculator';
 
 export default function ItemDetail() {
@@ -25,6 +26,12 @@ export default function ItemDetail() {
   const [deliveryMethod, setDeliveryMethod] = useState('Local meetup');
   const [swapError, setSwapError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Report Modal State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('Inappropriate content');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -81,6 +88,23 @@ export default function ItemDetail() {
       setSubmitting(false);
     }
   };
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    setReportSubmitting(true);
+    try {
+      await api.post(`/items/${item._id}/report`, { reason: reportReason, details: reportDetails });
+      toast.success('Report submitted successfully');
+      setShowReportModal(false);
+      setReportDetails('');
+      setReportReason('Inappropriate content');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit report');
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-[70vh]">
@@ -264,6 +288,15 @@ export default function ItemDetail() {
                 <button className="flex items-center justify-center px-6 border border-border-subtle rounded-md text-text-main font-semibold hover:bg-bg-main transition">
                   <Heart className="w-5 h-5 mr-2" /> Save Item
                 </button>
+                {user && !isOwner && (
+                  <button 
+                    onClick={() => setShowReportModal(true)}
+                    className="flex items-center justify-center px-4 border border-border-subtle rounded-md text-text-muted hover:text-danger-tag hover:border-danger-tag transition"
+                    title="Report Listing"
+                  >
+                    <Flag className="w-5 h-5" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6 border-t border-border-subtle pt-8">
@@ -434,6 +467,76 @@ export default function ItemDetail() {
                     <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
                   ) : (
                     'Send Request'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+            <div className="p-6 border-b border-border-subtle flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-brand-dark flex items-center">
+                  <Flag className="w-5 h-5 mr-2 text-danger-tag" /> Report Listing
+                </h2>
+              </div>
+              <button onClick={() => setShowReportModal(false)} className="text-text-muted hover:text-brand-dark transition"><X className="w-5 h-5" /></button>
+            </div>
+            
+            <form onSubmit={handleReportSubmit}>
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-text-muted">If you think this listing violates our community guidelines, please let us know.</p>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-brand-dark mb-2">Reason</label>
+                  <select 
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full p-3 bg-white border border-border-subtle rounded-md focus:border-brand-primary outline-none text-sm"
+                  >
+                    <option value="Inappropriate content">Inappropriate content</option>
+                    <option value="Counterfeit item">Counterfeit item</option>
+                    <option value="Spam or misleading">Spam or misleading</option>
+                    <option value="Offensive language">Offensive language</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-brand-dark mb-2">Additional Details (Optional)</label>
+                  <textarea 
+                    value={reportDetails}
+                    onChange={(e) => setReportDetails(e.target.value)}
+                    className="w-full p-3 bg-white border border-border-subtle rounded-md focus:border-brand-primary outline-none text-sm transition-all resize-none"
+                    rows="4"
+                    maxLength={500}
+                    placeholder="Please provide any additional context to help us understand the issue..."
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-border-subtle bg-bg-main flex justify-end gap-3 rounded-b-xl">
+                 <button 
+                  type="button" 
+                  onClick={() => setShowReportModal(false)}
+                  className="px-6 py-2.5 rounded-md font-semibold text-text-main bg-white border border-border-subtle hover:bg-brand-light transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={reportSubmitting}
+                  className="px-6 py-2.5 rounded-md font-semibold text-white bg-danger-tag disabled:opacity-50 hover:bg-red-700 transition shadow-sm flex items-center"
+                >
+                  {reportSubmitting ? (
+                    <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
+                  ) : (
+                    'Submit Report'
                   )}
                 </button>
               </div>

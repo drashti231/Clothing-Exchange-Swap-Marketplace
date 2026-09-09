@@ -235,13 +235,10 @@ export default function Admin() {
   const [listings, setListings] = useState([]);
   const [swaps, setSwaps] = useState([]);
   const [disputes, setDisputes] = useState([]);
+  const [reports, setReports] = useState([]);
 
   // Mock data for new features
   const mockRevenue = 1250.00;
-  const mockReports = [
-    { id: 1, item: 'Gucci Bag', reportedBy: 'Sarah M.', reason: 'Counterfeit item', date: '2026-09-08' },
-    { id: 2, item: 'Nike Sneakers', reportedBy: 'David L.', reason: 'Inappropriate photos', date: '2026-09-07' },
-  ];
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
@@ -249,18 +246,20 @@ export default function Admin() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [stRes, usRes, lsRes, swRes, dsRes] = await Promise.all([
+        const [stRes, usRes, lsRes, swRes, dsRes, rpRes] = await Promise.all([
           api.get('/admin/stats'),
           api.get('/admin/users'),
           api.get('/admin/listings'),
           api.get('/admin/swaps'),
-          api.get('/admin/disputes')
+          api.get('/admin/disputes'),
+          api.get('/admin/reports')
         ]);
         setStats(stRes.data);
         setUsersData(usRes.data);
         setListings(lsRes.data);
         setSwaps(swRes.data);
         setDisputes(dsRes.data);
+        setReports(rpRes.data);
       } catch (error) {
         console.error("Failed to fetch admin data", error);
         toast.error("Failed to load admin dashboard data");
@@ -302,12 +301,29 @@ export default function Admin() {
       toast.success(isVerified ? "Listing unverified" : "Listing verified");
       setListings(listings.map(l => l._id === listingId ? { ...l, isVerified: !isVerified } : l));
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to update listing verification status");
+      toast.error(err.response?.data?.message || "Failed to update listing");
     }
   };
 
-  const handleDismissReport = (id) => {
-    toast.success("Report dismissed");
+  const handleDismissReport = async (reportId) => {
+    try {
+      await api.put(`/admin/reports/${reportId}/dismiss`);
+      toast.success("Report dismissed");
+      setReports(reports.filter(r => r._id !== reportId));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to dismiss report");
+    }
+  };
+
+  const handleRemoveReportedItem = async (reportId) => {
+    try {
+      if (!window.confirm('Are you sure you want to remove this item? This action cannot be undone.')) return;
+      await api.delete(`/admin/reports/${reportId}/remove-item`);
+      toast.success("Item removed successfully");
+      setReports(reports.filter(r => r._id !== reportId));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to remove item");
+    }
   };
 
   const sidebarLinks = [
@@ -701,45 +717,53 @@ export default function Admin() {
              <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
                <div className="p-6 border-b border-border-subtle bg-white/50 flex justify-between items-center">
                  <h2 className="text-xl font-bold text-brand-dark">Reported Content</h2>
-                 <span className="bg-danger-tag text-white px-3 py-1 rounded-full text-xs font-bold">{mockReports.length} Active</span>
+                 <span className="bg-danger-tag text-white px-3 py-1 rounded-full text-xs font-bold">{reports.length} Active</span>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-brand-light/30 text-brand-dark">
-                    <tr>
-                      <th className="px-6 py-4 font-bold">Item</th>
-                      <th className="px-6 py-4 font-bold">Reported By</th>
-                      <th className="px-6 py-4 font-bold">Reason</th>
-                      <th className="px-6 py-4 font-bold">Date</th>
-                      <th className="px-6 py-4 font-bold text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-subtle">
-                    {mockReports.map(report => (
-                      <tr key={report.id} className="hover:bg-white transition">
-                        <td className="px-6 py-4 font-bold text-brand-dark">{report.item}</td>
-                        <td className="px-6 py-4 font-medium text-text-muted">{report.reportedBy}</td>
-                        <td className="px-6 py-4">
-                          <span className="bg-danger-tag/10 text-danger-tag px-3 py-1.5 rounded-xl font-bold text-xs">{report.reason}</span>
-                        </td>
-                        <td className="px-6 py-4 font-medium text-text-muted">{report.date}</td>
-                        <td className="px-6 py-4 text-right flex items-center justify-end space-x-3">
-                          <button 
-                            onClick={() => handleDismissReport(report.id)}
-                            className="px-4 py-2 rounded-xl bg-white border border-border-subtle text-text-main font-bold text-xs hover:bg-gray-50 transition"
-                          >
-                            Dismiss
-                          </button>
-                          <button 
-                            className="px-4 py-2 rounded-xl bg-danger-tag text-white font-bold text-xs hover:bg-red-700 transition flex items-center"
-                          >
-                            <Trash2 className="w-3 h-3 mr-1.5" /> Remove Item
-                          </button>
-                        </td>
+                {reports.length === 0 ? (
+                  <div className="p-12 text-center text-text-muted">
+                    <CheckCircle className="w-12 h-12 text-success-tag mx-auto mb-4 opacity-50" />
+                    <p className="font-bold text-lg">No pending reports.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-brand-light/30 text-brand-dark">
+                      <tr>
+                        <th className="px-6 py-4 font-bold">Item</th>
+                        <th className="px-6 py-4 font-bold">Reported By</th>
+                        <th className="px-6 py-4 font-bold">Reason</th>
+                        <th className="px-6 py-4 font-bold">Date</th>
+                        <th className="px-6 py-4 font-bold text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-border-subtle">
+                      {reports.map(report => (
+                        <tr key={report._id} className="hover:bg-white transition">
+                          <td className="px-6 py-4 font-bold text-brand-dark">{report.item?.title || 'Unknown Item'}</td>
+                          <td className="px-6 py-4 font-medium text-text-muted">{report.reportedBy?.name || 'Unknown User'}</td>
+                          <td className="px-6 py-4">
+                            <span className="bg-danger-tag/10 text-danger-tag px-3 py-1.5 rounded-xl font-bold text-xs">{report.reason}</span>
+                          </td>
+                          <td className="px-6 py-4 font-medium text-text-muted">{new Date(report.createdAt).toLocaleDateString()}</td>
+                          <td className="px-6 py-4 text-right flex items-center justify-end space-x-3">
+                            <button 
+                              onClick={() => handleDismissReport(report._id)}
+                              className="px-4 py-2 rounded-xl bg-white border border-border-subtle text-text-main font-bold text-xs hover:bg-gray-50 transition"
+                            >
+                              Dismiss
+                            </button>
+                            <button 
+                              onClick={() => handleRemoveReportedItem(report._id)}
+                              className="px-4 py-2 rounded-xl bg-danger-tag text-white font-bold text-xs hover:bg-red-700 transition flex items-center"
+                            >
+                              <Trash2 className="w-3 h-3 mr-1.5" /> Remove Item
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           ) : activeTab === 'Disputes' ? (

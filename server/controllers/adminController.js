@@ -2,6 +2,7 @@ const User = require('../models/User');
 const ClothingItem = require('../models/ClothingItem');
 const SwapRequest = require('../models/SwapRequest');
 const Dispute = require('../models/Dispute');
+const Report = require('../models/Report');
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
@@ -156,3 +157,61 @@ exports.toggleListingVerification = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get all pending reports
+// @route   GET /api/admin/reports
+// @access  Private/Admin
+exports.getReports = async (req, res) => {
+  try {
+    const reports = await Report.find({ status: 'pending' })
+      .populate('item', 'title')
+      .populate('reportedBy', 'name')
+      .sort({ createdAt: -1 });
+    res.json(reports);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Dismiss a report
+// @route   PUT /api/admin/reports/:id/dismiss
+// @access  Private/Admin
+exports.dismissReport = async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+
+    report.status = 'dismissed';
+    await report.save();
+
+    res.json({ message: 'Report dismissed', report });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Remove reported item
+// @route   DELETE /api/admin/reports/:id/remove-item
+// @access  Private/Admin
+exports.removeReportedItem = async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+
+    const item = await ClothingItem.findById(report.item);
+    if (item) {
+      await item.deleteOne();
+    }
+
+    report.status = 'resolved';
+    await report.save();
+
+    // Optionally dismiss other pending reports for the same item
+    await Report.updateMany({ item: report.item, status: 'pending' }, { status: 'resolved' });
+
+    res.json({ message: 'Item removed and report resolved', report });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

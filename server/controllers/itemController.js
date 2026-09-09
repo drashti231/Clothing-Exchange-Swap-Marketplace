@@ -1,5 +1,6 @@
 const ClothingItem = require('../models/ClothingItem');
 const User = require('../models/User');
+const Report = require('../models/Report');
 const { calculateSwapPoints } = require('../utils/calculator');
 
 // @desc    Create a new clothing listing
@@ -312,3 +313,41 @@ exports.getRecommendations = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Report an item
+// @route   POST /api/items/:id/report
+// @access  Private
+exports.reportItem = async (req, res) => {
+  try {
+    const { reason, details } = req.body;
+    const itemId = req.params.id;
+
+    const item = await ClothingItem.findById(itemId);
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    if (item.owner.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: 'You cannot report your own item' });
+    }
+
+    const existingReport = await Report.findOne({ item: itemId, reportedBy: req.user._id });
+    if (existingReport) {
+      return res.status(400).json({ message: 'You have already reported this item' });
+    }
+
+    const report = new Report({
+      item: itemId,
+      reportedBy: req.user._id,
+      reason,
+      details
+    });
+
+    await report.save();
+
+    res.status(201).json({ message: 'Report submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

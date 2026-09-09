@@ -8,7 +8,10 @@ const {
   getDisputes, 
   resolveDispute, 
   toggleUserBlock,
-  toggleListingVerification
+  toggleListingVerification,
+  getReports,
+  dismissReport,
+  removeReportedItem
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -22,5 +25,9 @@ router.get('/disputes', getDisputes);
 router.put('/disputes/:id/resolve', resolveDispute);
 router.put('/users/:id/block', toggleUserBlock);
 router.put('/listings/:id/verify', toggleListingVerification);
+
+router.get('/reports', getReports);
+router.put('/reports/:id/dismiss', dismissReport);
+router.delete('/reports/:id/remove-item', removeReportedItem);
 
 module.exports = router;

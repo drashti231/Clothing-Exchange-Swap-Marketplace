@@ -8,6 +8,7 @@ const {
   getItemById,
   getUserListings,
   getRecommendations,
+  reportItem
 } = require('../controllers/itemController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -23,5 +24,7 @@ router.route('/:id')
   .get(getItemById)
   .put(protect, upload.array('images', 5), updateItem)
   .delete(protect, deleteItem);
+
+router.post('/:id/report', protect, reportItem);
 
 module.exports = router;
