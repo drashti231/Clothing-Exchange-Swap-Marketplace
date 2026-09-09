@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { 
   Users, Shirt, ArrowRightLeft, AlertTriangle, 
   Search, ShieldCheck, LayoutDashboard, FileText, 
-  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar, Menu, Trash2, Check, DollarSign, Activity, Flag
+  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar, Menu, Trash2, Check, DollarSign, Activity, Flag, Bell
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
