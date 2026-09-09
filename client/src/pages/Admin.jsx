@@ -392,7 +392,7 @@ export default function Admin() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden w-full relative z-10">
         {/* Header */}
-        <header className="h-[80px] bg-white/50 backdrop-blur-md border-b border-white flex items-center justify-between px-6 sm:px-10 shrink-0">
+        <header className="relative z-20 h-[80px] bg-white/50 backdrop-blur-md border-b border-white flex items-center justify-between px-6 sm:px-10 shrink-0">
           <div className="flex items-center space-x-4">
             <button 
               className="md:hidden text-text-muted hover:text-brand-dark focus:outline-none bg-white p-2 rounded-xl shadow-sm border border-border-subtle"
