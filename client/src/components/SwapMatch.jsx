@@ -65,8 +65,8 @@ const SwapMatch = () => {
     <section className="relative w-full overflow-hidden bg-white py-24 sm:py-32 font-manrope">
       {/* Background Glows */}
       <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center">
-        <div className="absolute w-[800px] h-[800px] bg-[#9b87f5]/5 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute w-[500px] h-[500px] bg-[#FFC5C5]/10 rounded-full blur-[80px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute w-[800px] h-[800px] bg-brand-primary/5 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute w-[500px] h-[500px] bg-success-tag/10 rounded-full blur-[80px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
@@ -77,7 +77,7 @@ const SwapMatch = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl font-black text-[#1A1F2C] mb-6 tracking-tight"
+            className="text-4xl sm:text-5xl font-black text-brand-dark mb-6 tracking-tight"
           >
             Find Your Perfect Swap
           </motion.h2>
@@ -104,7 +104,7 @@ const SwapMatch = () => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ delay: label.delay * 0.2, duration: 0.5 }}
-                className="absolute z-0 hidden sm:flex px-4 py-2 bg-white/80 backdrop-blur-md border border-[#F1F1F1] rounded-full shadow-sm text-sm font-bold text-[#9b87f5]"
+                className="absolute z-0 hidden sm:flex px-4 py-2 bg-white/80 backdrop-blur-md border border-[#F1F1F1] rounded-full shadow-sm text-sm font-bold text-brand-primary"
                 style={{ top: label.top, left: label.left, right: label.right }}
               >
                 {label.text}
@@ -125,7 +125,7 @@ const SwapMatch = () => {
               scale: { duration: 0.5 }
             }}
             whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
-            className={`relative z-10 w-64 bg-white/80 backdrop-blur-xl rounded-[2rem] border overflow-hidden transition-all duration-500 group ${phase === 'found' ? 'border-[#9b87f5]/40 shadow-[0_0_30px_rgba(155,135,245,0.15)]' : 'border-[#E5E7EB] shadow-sm'}`}
+            className={`relative z-10 w-64 bg-white/80 backdrop-blur-xl rounded-[2rem] border overflow-hidden transition-all duration-500 group ${phase === 'found' ? 'border-brand-primary/40 shadow-[0_0_30px_rgba(26,71,49,0.15)]' : 'border-[#E5E7EB] shadow-sm'}`}
           >
             <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-700 shadow-sm border border-gray-100">
               Your Item
@@ -151,7 +151,7 @@ const SwapMatch = () => {
 
           {/* Center Indicator */}
           <div className="relative z-20 flex flex-col items-center justify-center">
-            <h4 className="absolute -top-16 text-xl font-bold text-gray-800 whitespace-nowrap hidden sm:block">
+            <h4 className="absolute -top-16 left-1/2 -translate-x-1/2 text-xl font-bold text-gray-800 whitespace-nowrap hidden sm:block">
               {getHeadingText()}
             </h4>
             
@@ -161,13 +161,13 @@ const SwapMatch = () => {
                 scale: phase === 'found' ? 1.2 : 1
               }}
               transition={{ duration: 1.5, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors duration-500 shadow-md border-4 ${phase === 'found' || phase === 'done' ? 'bg-[#FFC5C5] text-[#1A1F2C] border-white' : 'bg-white text-gray-400 border-gray-50'}`}
+              className={`w-20 h-20 rounded-full flex items-center justify-center transition-colors duration-500 shadow-md border-4 ${phase === 'found' || phase === 'done' ? 'bg-brand-light text-brand-dark border-white' : 'bg-white text-gray-400 border-gray-50'}`}
             >
               <Repeat2 className="w-8 h-8" />
             </motion.div>
             
             <div className="absolute -bottom-10 flex flex-col items-center whitespace-nowrap">
-              <span className="font-black tracking-widest text-[#1A1F2C] opacity-80">SWAP</span>
+              <span className="font-black tracking-widest text-brand-dark opacity-80">SWAP</span>
               <span className="text-sm font-medium text-gray-500 mt-1 sm:hidden">{getStatusText()}</span>
               <span className="text-sm font-medium text-gray-500 mt-1 hidden sm:block">{getStatusText()}</span>
             </div>
@@ -176,8 +176,8 @@ const SwapMatch = () => {
             <AnimatePresence>
               {phase === 'searching' && (
                 <>
-                  <motion.div animate={{ x: [-20, 20], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="absolute w-2 h-2 bg-[#9b87f5] rounded-full left-0 top-1/4"></motion.div>
-                  <motion.div animate={{ x: [20, -20], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }} className="absolute w-2 h-2 bg-[#FFC5C5] rounded-full right-0 bottom-1/4"></motion.div>
+                  <motion.div animate={{ x: [-20, 20], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="absolute w-2 h-2 bg-brand-primary rounded-full left-0 top-1/4"></motion.div>
+                  <motion.div animate={{ x: [20, -20], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }} className="absolute w-2 h-2 bg-success-tag rounded-full right-0 bottom-1/4"></motion.div>
                 </>
               )}
             </AnimatePresence>
@@ -196,9 +196,9 @@ const SwapMatch = () => {
               scale: { duration: 0.5 }
             }}
             whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
-            className={`relative z-10 w-64 bg-white/80 backdrop-blur-xl rounded-[2rem] border overflow-hidden transition-all duration-500 group ${phase === 'found' ? 'border-[#FFC5C5]/60 shadow-[0_0_30px_rgba(255,197,197,0.2)]' : 'border-[#E5E7EB] shadow-sm'}`}
+            className={`relative z-10 w-64 bg-white/80 backdrop-blur-xl rounded-[2rem] border overflow-hidden transition-all duration-500 group ${phase === 'found' ? 'border-brand-light/60 shadow-[0_0_30px_rgba(235,241,237,0.8)]' : 'border-[#E5E7EB] shadow-sm'}`}
           >
-            <div className="absolute top-4 right-4 z-20 bg-[#1A1F2C] backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm border border-[#1A1F2C]/50">
+            <div className="absolute top-4 right-4 z-20 bg-brand-dark backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm border border-brand-dark/50">
               Perfect Match
             </div>
             <div className="h-72 overflow-hidden relative">
@@ -214,7 +214,7 @@ const SwapMatch = () => {
             <div className="p-5">
               <h3 className="font-bold text-lg text-gray-900 mb-1">{phase === 'done' ? leftItem.title : rightItem.title}</h3>
               <p className="text-sm text-gray-500 mb-3">{phase === 'done' ? leftItem.category : rightItem.category}</p>
-              <span className="inline-block px-3 py-1 bg-[#1A1F2C]/5 rounded-full text-xs font-bold text-[#1A1F2C]">
+              <span className="inline-block px-3 py-1 bg-brand-dark/5 rounded-full text-xs font-bold text-brand-dark">
                 {phase === 'done' ? leftItem.condition : rightItem.condition}
               </span>
             </div>
@@ -231,7 +231,7 @@ const SwapMatch = () => {
         >
           <button 
             onClick={() => navigate('/marketplace')}
-            className="group relative flex items-center justify-center px-8 py-4 bg-[#1A1F2C] text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+            className="group relative flex items-center justify-center px-8 py-4 bg-brand-dark text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
           >
             <span className="relative z-10 flex items-center">
               Start Swapping <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
