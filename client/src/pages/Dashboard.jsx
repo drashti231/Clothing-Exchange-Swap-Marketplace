@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
-import { Link } from 'react-router-dom';
-import { Shirt, ArrowRightLeft, CheckCircle, Bell, Plus, Search, Star, Clock, Inbox, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shirt, ArrowRightLeft, CheckCircle, Bell, Plus, Search, Star, Clock, Inbox, ChevronRight, Droplets, Cloud, Recycle } from 'lucide-react';
 import ItemCard from '../components/ItemCard';
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -56,179 +57,223 @@ export default function Dashboard() {
     );
   }
 
+  // Derived metrics for UI
+  const waterSaved = (stats?.completedSwaps || 0) * 2700;
+  const carbonReduced = ((stats?.completedSwaps || 0) * 2.1).toFixed(1);
+  const wasteDiverted = ((stats?.completedSwaps || 0) * 0.3).toFixed(1);
+
   return (
-    <div className="max-w-7xl mx-auto space-y-10 pb-12">
-      
-      {/* Welcome Hero Card */}
-      <div className="bg-brand-dark rounded-2xl overflow-hidden shadow-md relative">
-        {/* Decorative background element */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary rounded-full blur-3xl opacity-50 transform translate-x-1/2 -translate-y-1/2"></div>
+    <div className="bg-[#FAF9F6] min-h-screen pt-8 pb-16 relative overflow-hidden">
+      {/* Decorative ambient blobs behind the UI */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-primary/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+      <div className="absolute top-[20%] right-0 w-[400px] h-[400px] bg-[#E8F0EA] rounded-full blur-[80px] translate-x-1/4 pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
         
-        <div className="p-8 md:p-10 flex flex-col md:flex-row items-center justify-between relative z-10">
-          <div className="flex items-center space-x-6 mb-6 md:mb-0">
-            <div className="w-20 h-20 bg-warm-cream rounded-full flex items-center justify-center text-brand-dark font-bold text-3xl shadow-inner border-4 border-brand-light">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {user?.name}!</h1>
-              <p className="text-brand-light text-base max-w-md leading-relaxed">
-                Manage your wardrobe, track swaps, and continue your sustainable fashion journey with ReWear.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <Link to="/list-item" className="bg-danger-tag text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center hover:bg-orange-700 transition shadow-sm">
-              <Plus className="w-5 h-5 mr-2" /> List New Item
-            </Link>
-            <Link to="/marketplace" className="bg-white/10 text-white border border-white/20 px-6 py-3 rounded-xl font-semibold flex items-center justify-center hover:bg-white/20 transition backdrop-blur-sm">
-              <Search className="w-5 h-5 mr-2" /> Browse Marketplace
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-brand-light text-brand-primary rounded-xl group-hover:scale-110 transition-transform"><Shirt className="w-6 h-6" /></div>
-          </div>
-          <div>
-            <p className="text-text-muted text-sm font-medium mb-1">Active Listings</p>
-            <p className="text-3xl font-bold text-brand-dark">{stats?.activeListings || 0}</p>
-            <p className="text-xs text-text-muted mt-2 flex items-center">Your available wardrobe</p>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-orange-50 text-warning-tag rounded-xl group-hover:scale-110 transition-transform"><Clock className="w-6 h-6" /></div>
-          </div>
-          <div>
-            <p className="text-text-muted text-sm font-medium mb-1">Pending Requests</p>
-            <p className="text-3xl font-bold text-brand-dark">{stats?.pendingSwaps || 0}</p>
-            <p className="text-xs text-text-muted mt-2 flex items-center">Awaiting your response</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-green-50 text-success-tag rounded-xl group-hover:scale-110 transition-transform"><CheckCircle className="w-6 h-6" /></div>
-          </div>
-          <div>
-            <p className="text-text-muted text-sm font-medium mb-1">Completed Swaps</p>
-            <p className="text-3xl font-bold text-brand-dark">{stats?.completedSwaps || 0}</p>
-            <p className="text-xs text-text-muted mt-2 flex items-center">Successful exchanges</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm hover:shadow-md transition group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-brand-light text-danger-tag rounded-xl group-hover:scale-110 transition-transform"><Star className="w-6 h-6" /></div>
-          </div>
-          <div>
-            <p className="text-text-muted text-sm font-medium mb-1">Estimated Value</p>
-            <p className="text-3xl font-bold text-brand-dark">{stats?.totalPointsValue || 0} <span className="text-lg text-text-muted font-normal">pts</span></p>
-            <p className="text-xs text-text-muted mt-2 flex items-center">Total closet points</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sustainability Impact Tracker */}
-        <div className="lg:col-span-3 bg-gradient-to-r from-brand-dark to-brand-primary rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden">
-          <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
-            <Shirt className="w-64 h-64 transform translate-x-1/4 -translate-y-1/4" />
-          </div>
-          <div className="relative z-10">
-            <h2 className="text-xl font-bold mb-6 flex items-center">
-              <Star className="w-6 h-6 mr-2 text-warning-tag" /> Your Sustainability Impact
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/20">
-              <div className="py-4 md:py-0">
-                <p className="text-brand-light font-medium text-sm mb-1">Water Saved</p>
-                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 2700} <span className="text-lg font-normal opacity-80">Liters</span></p>
-                <p className="text-xs text-brand-light mt-2 opacity-80">~1 cotton shirt = 2,700L</p>
-              </div>
-              <div className="py-4 md:py-0">
-                <p className="text-brand-light font-medium text-sm mb-1">Carbon Emissions Reduced</p>
-                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 2.1} <span className="text-lg font-normal opacity-80">kg CO2</span></p>
-                <p className="text-xs text-brand-light mt-2 opacity-80">prevented from entering atmosphere</p>
-              </div>
-              <div className="py-4 md:py-0">
-                <p className="text-brand-light font-medium text-sm mb-1">Textile Waste Diverted</p>
-                <p className="text-4xl font-bold">{(stats?.completedSwaps || 0) * 0.3} <span className="text-lg font-normal opacity-80">kg</span></p>
-                <p className="text-xs text-brand-light mt-2 opacity-80">kept out of landfills</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Main Content Area */}
-        <div className="lg:col-span-8 space-y-8">
+        {/* TOP ROW: Profile & Main Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
-          {/* Swap Activity Timeline (Mocked for design, to be connected if data exists) */}
-          <div className="bg-white rounded-2xl border border-border-subtle shadow-sm p-6 md:p-8">
-            <h2 className="text-xl font-bold text-brand-dark mb-6">Your Swap Activity</h2>
-            {stats?.completedSwaps > 0 || stats?.pendingSwaps > 0 ? (
-              <div className="relative flex justify-between items-center px-4 md:px-10">
-                {/* Connecting Line */}
-                <div className="absolute top-1/2 left-0 w-full h-1 bg-brand-light -z-10 transform -translate-y-1/2"></div>
-                
-                {/* Steps */}
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold shadow-md z-10"><Shirt className="w-5 h-5" /></div>
-                  <p className="text-xs font-semibold mt-2 text-brand-dark">Listed</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-danger-tag text-white flex items-center justify-center font-bold shadow-md z-10"><Inbox className="w-5 h-5" /></div>
-                  <p className="text-xs font-semibold mt-2 text-brand-dark">Requested</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-warning-tag text-white flex items-center justify-center font-bold shadow-md z-10"><ArrowRightLeft className="w-5 h-5" /></div>
-                  <p className="text-xs font-semibold mt-2 text-brand-dark">Swapping</p>
-                </div>
-                <div className="flex flex-col items-center opacity-50">
-                  <div className="w-10 h-10 rounded-full bg-brand-light text-text-muted border-2 border-border-subtle flex items-center justify-center font-bold shadow-sm z-10"><CheckCircle className="w-5 h-5" /></div>
-                  <p className="text-xs font-medium mt-2 text-text-muted">Completed</p>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-6 px-4 bg-brand-light/30 rounded-xl border border-dashed border-border-subtle">
-                <p className="text-text-muted text-sm">You haven't initiated any swaps yet.</p>
-                <Link to="/marketplace" className="text-brand-primary font-medium text-sm hover:underline mt-2 inline-block">Find items to swap</Link>
-              </div>
-            )}
+          {/* Bento Block 1: Profile Summary */}
+          <div className="md:col-span-4 bg-brand-primary/5 rounded-[2rem] p-6 sm:p-8 flex flex-col items-center justify-center border border-white/40 shadow-sm backdrop-blur-md relative overflow-hidden">
+            <div className="absolute top-4 right-6 cursor-pointer opacity-50 hover:opacity-100 transition">
+               <div className="flex space-x-1">
+                 <div className="w-1.5 h-1.5 bg-brand-dark rounded-full"></div>
+                 <div className="w-1.5 h-1.5 bg-brand-dark rounded-full"></div>
+                 <div className="w-1.5 h-1.5 bg-brand-dark rounded-full"></div>
+               </div>
+            </div>
+
+            <img 
+              src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=1A4731&color=fff&size=128`} 
+              alt={user?.name} 
+              className="w-24 h-24 rounded-full shadow-md object-cover border-4 border-white mb-4"
+            />
+            <h1 className="text-2xl font-bold text-brand-dark">{user?.name}</h1>
+            <p className="text-text-muted text-sm font-medium mb-6 flex items-center">
+              <span className="w-2 h-2 rounded-full bg-success-tag mr-2"></span> Member
+            </p>
+
+            <div className="grid grid-cols-3 gap-8 w-full text-center border-t border-brand-dark/10 pt-6">
+               <div>
+                  <p className="text-2xl font-bold text-brand-dark">{stats?.completedSwaps || 0}</p>
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Swaps</p>
+               </div>
+               <div>
+                  <p className="text-2xl font-bold text-brand-dark">{stats?.activeListings || 0}</p>
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Items</p>
+               </div>
+               <div>
+                  <p className="text-2xl font-bold text-brand-dark flex justify-center items-center">
+                    {user?.rating?.toFixed(1) || 'N/A'}
+                  </p>
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Rating</p>
+               </div>
+            </div>
+
+            <button 
+              onClick={() => navigate('/profile')} 
+              className="mt-6 w-full py-3 rounded-full bg-white text-brand-dark border border-brand-dark/10 font-bold shadow-sm hover:bg-brand-primary hover:text-white transition-all"
+            >
+              View Profile
+            </button>
           </div>
 
+          {/* Bento Block 2: Impact & Notifications */}
+          <div className="md:col-span-8 grid grid-rows-1 md:grid-rows-2 gap-6">
+             
+             {/* Impact Banner */}
+             <div className="bg-gradient-to-br from-[#E2EBE5] to-[#D4E0D8] rounded-[2rem] p-6 md:p-8 flex flex-col justify-center relative overflow-hidden shadow-sm border border-white/50">
+                <div className="absolute right-4 top-4 opacity-10">
+                   <Recycle className="w-32 h-32" />
+                </div>
+                <div className="flex justify-between items-start mb-2 relative z-10">
+                  <h2 className="text-xl font-bold text-brand-dark">Sustainability Impact</h2>
+                  <div className="bg-white/50 backdrop-blur-sm p-1.5 rounded-full cursor-pointer hover:bg-white transition text-brand-dark">
+                    <Star className="w-4 h-4" />
+                  </div>
+                </div>
+                <p className="text-sm text-brand-dark/70 font-medium mb-6 relative z-10">Glassmorphism effect with blur</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 relative z-10">
+                   <div className="bg-white/40 backdrop-blur-md rounded-2xl p-4 flex items-center shadow-sm border border-white/30">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+                         <Droplets className="w-5 h-5" />
+                      </div>
+                      <div>
+                         <p className="text-lg font-bold text-brand-dark leading-tight">{waterSaved.toLocaleString()}L</p>
+                         <p className="text-[11px] font-semibold text-brand-dark/70 uppercase">Water Saved</p>
+                      </div>
+                   </div>
+                   
+                   <div className="bg-white/40 backdrop-blur-md rounded-2xl p-4 flex items-center shadow-sm border border-white/30">
+                      <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3 flex-shrink-0">
+                         <Cloud className="w-5 h-5" />
+                      </div>
+                      <div>
+                         <p className="text-lg font-bold text-brand-dark leading-tight">{carbonReduced}kg</p>
+                         <p className="text-[11px] font-semibold text-brand-dark/70 uppercase">CO2 Reduced</p>
+                      </div>
+                   </div>
+
+                   <div className="bg-white/40 backdrop-blur-md rounded-2xl p-4 flex items-center shadow-sm border border-white/30">
+                      <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mr-3 flex-shrink-0">
+                         <Shirt className="w-5 h-5" />
+                      </div>
+                      <div>
+                         <p className="text-lg font-bold text-brand-dark leading-tight">{wasteDiverted}kg</p>
+                         <p className="text-[11px] font-semibold text-brand-dark/70 uppercase">Waste Avoided</p>
+                      </div>
+                   </div>
+                </div>
+             </div>
+
+             {/* Notifications & Quick Actions */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                
+                {/* Active Requests Mini Card */}
+                <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-border-subtle flex flex-col justify-between">
+                   <div>
+                     <h3 className="font-bold text-brand-dark text-lg mb-1">Active Requests</h3>
+                     <p className="text-text-muted text-xs font-semibold uppercase tracking-wider mb-4">Pending & Incoming</p>
+                   </div>
+                   
+                   {stats?.pendingSwaps > 0 ? (
+                     <div className="bg-warning-tag/10 text-warning-tag rounded-xl p-4 flex items-center border border-warning-tag/20">
+                       <ArrowRightLeft className="w-6 h-6 mr-3" />
+                       <div>
+                         <p className="font-bold text-lg leading-none">{stats?.pendingSwaps}</p>
+                         <p className="text-sm font-medium">Pending action</p>
+                       </div>
+                     </div>
+                   ) : (
+                     <div className="bg-brand-light/50 rounded-xl p-4 border border-dashed border-border-subtle text-center">
+                       <p className="text-sm text-text-muted font-medium">No active requests</p>
+                     </div>
+                   )}
+
+                   <Link to="/swaps" className="text-sm text-brand-primary font-bold mt-4 inline-block hover:underline">Manage Swaps &rarr;</Link>
+                </div>
+
+                {/* Notifications Mini Card */}
+                <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-border-subtle flex flex-col">
+                   <div className="flex justify-between items-center mb-4">
+                     <h3 className="font-bold text-brand-dark text-lg">Alerts</h3>
+                     {notifications.filter(n => !n.isRead).length > 0 && (
+                       <span className="bg-danger-tag text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                         {notifications.filter(n => !n.isRead).length} New
+                       </span>
+                     )}
+                   </div>
+                   
+                   <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-2 max-h-[120px]">
+                     {notifications.length === 0 ? (
+                       <p className="text-sm text-text-muted font-medium text-center mt-4">All caught up!</p>
+                     ) : (
+                       notifications.map(notif => (
+                         <div 
+                           key={notif._id} 
+                           onClick={() => !notif.isRead && markAsRead(notif._id)}
+                           className={`p-2.5 rounded-lg text-xs cursor-pointer flex items-start transition ${notif.isRead ? 'bg-transparent text-text-muted' : 'bg-brand-light/40 text-brand-dark font-medium'}`}
+                         >
+                           <div className={`mt-1 mr-2 w-1.5 h-1.5 rounded-full flex-shrink-0 ${notif.isRead ? 'bg-transparent' : 'bg-brand-primary'}`}></div>
+                           <p className="line-clamp-2 leading-relaxed">{notif.message}</p>
+                         </div>
+                       ))
+                     )}
+                   </div>
+                </div>
+
+             </div>
+
+          </div>
+        </div>
+
+        {/* MIDDLE SECTION: Actions & Market */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white rounded-[2rem] p-6 sm:p-8 border border-border-subtle shadow-sm">
+           <div className="md:col-span-8 flex flex-col sm:flex-row gap-4">
+              <div className="relative w-full sm:max-w-md">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted w-5 h-5" />
+                 <input 
+                   type="text" 
+                   placeholder="Search the marketplace..." 
+                   className="w-full bg-brand-light/30 border border-border-subtle rounded-full py-3 pl-12 pr-4 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition"
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter' && e.target.value) {
+                       navigate(`/marketplace?search=${e.target.value}`);
+                     }
+                   }}
+                 />
+              </div>
+           </div>
+           <div className="md:col-span-4 flex justify-end gap-3 w-full">
+             <Link to="/marketplace" className="flex-1 sm:flex-none py-3 px-6 rounded-full bg-white text-brand-dark border border-border-subtle font-bold text-sm hover:bg-brand-light transition-colors text-center">
+               Browse All
+             </Link>
+             <Link to="/list-item" className="flex-1 sm:flex-none py-3 px-6 rounded-full bg-brand-dark text-white font-bold text-sm shadow-md hover:bg-brand-primary transition-colors text-center shadow-brand-dark/20 flex items-center justify-center">
+               <Plus className="w-4 h-4 mr-1" /> List New
+             </Link>
+           </div>
+        </div>
+
+        {/* BOTTOM SECTION: Recommended & Recent */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
           {/* Recent Listings */}
           <div>
-            <div className="flex justify-between items-end mb-6">
-              <div>
-                <h2 className="text-xl font-bold text-brand-dark">My Recent Listings</h2>
-                <p className="text-sm text-text-muted mt-1">Items you've added to the community</p>
-              </div>
-              <Link to="/profile" className="text-sm font-semibold text-danger-tag hover:text-orange-700 transition flex items-center">
-                View All <ChevronRight className="w-4 h-4 ml-1" />
-              </Link>
+            <div className="flex justify-between items-center mb-6 px-2">
+              <h2 className="text-xl font-bold text-brand-dark">Your Wardrobe</h2>
+              <Link to="/profile" className="text-sm font-bold text-brand-primary hover:underline">View All</Link>
             </div>
             
             {recentItems.length === 0 ? (
-              <div className="bg-white p-12 rounded-2xl border border-dashed border-border-subtle shadow-sm text-center">
-                <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shirt className="w-10 h-10 text-brand-primary" />
-                </div>
-                <h3 className="font-bold text-xl text-brand-dark mb-2">No listings yet</h3>
-                <p className="text-text-muted mb-6 max-w-md mx-auto">Start your sustainable wardrobe journey by uploading your first pre-loved item to the marketplace!</p>
-                <Link to="/list-item" className="bg-brand-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-dark transition inline-flex items-center shadow-sm">
-                  <Plus className="w-5 h-5 mr-2" /> List Your First Item
-                </Link>
+              <div className="bg-white p-10 rounded-[2rem] border border-dashed border-border-subtle shadow-sm text-center">
+                <Shirt className="w-12 h-12 text-border-subtle mx-auto mb-3" />
+                <h3 className="font-bold text-lg text-brand-dark mb-1">Closet is empty</h3>
+                <p className="text-text-muted text-sm mb-6">Upload clothes to start swapping with others.</p>
+                <Link to="/list-item" className="text-brand-primary font-bold text-sm">Upload first item &rarr;</Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {recentItems.slice(0, 4).map(item => (
                   <ItemCard key={item._id} item={item} />
                 ))}
@@ -236,89 +281,22 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* AI Recommendations */}
+          {/* Community Recommendations */}
           {recommendations.length > 0 && (
-            <div className="pt-8">
-              <div className="flex justify-between items-end mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-brand-dark flex items-center"><Star className="w-5 h-5 mr-2 text-warning-tag" /> Recommended For You</h2>
-                  <p className="text-sm text-text-muted mt-1">Based on your style and size preferences</p>
-                </div>
-                <Link to="/marketplace" className="text-sm font-semibold text-danger-tag hover:text-orange-700 transition flex items-center">
-                  See More <ChevronRight className="w-4 h-4 ml-1" />
-                </Link>
+            <div>
+              <div className="flex justify-between items-center mb-6 px-2">
+                <h2 className="text-xl font-bold text-brand-dark">Community Swaps</h2>
+                <Link to="/marketplace" className="text-sm font-bold text-brand-primary hover:underline">Explore</Link>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {recommendations.slice(0, 4).map(item => (
                   <ItemCard key={item._id} item={item} />
                 ))}
               </div>
             </div>
           )}
-        </div>
 
-        {/* Sidebar Area */}
-        <div className="lg:col-span-4 space-y-8">
-          
-          {/* Notifications Panel */}
-          <div className="bg-white rounded-2xl border border-border-subtle shadow-sm flex flex-col h-[500px]">
-            <div className="p-5 border-b border-border-subtle flex justify-between items-center bg-brand-light/30 rounded-t-2xl">
-              <h2 className="text-lg font-bold text-brand-dark flex items-center">
-                <Bell className="w-5 h-5 mr-2 text-brand-primary" /> Notifications
-              </h2>
-              {notifications.filter(n => !n.isRead).length > 0 && (
-                <span className="bg-danger-tag text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                  {notifications.filter(n => !n.isRead).length} New
-                </span>
-              )}
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-              {notifications.length === 0 ? (
-                <div className="text-center text-text-muted flex flex-col items-center justify-center h-full">
-                  <div className="w-16 h-16 bg-brand-light rounded-full flex items-center justify-center mb-3">
-                    <Bell className="w-8 h-8 text-brand-primary/50" />
-                  </div>
-                  <h3 className="font-semibold text-brand-dark mb-1">All caught up!</h3>
-                  <p className="text-sm">You have no new notifications.</p>
-                </div>
-              ) : (
-                notifications.map(notif => (
-                  <div 
-                    key={notif._id} 
-                    onClick={() => !notif.isRead && markAsRead(notif._id)}
-                    className={`p-4 rounded-xl border text-sm cursor-pointer transition flex items-start ${notif.isRead ? 'bg-white border-border-subtle/60 text-text-muted' : 'bg-brand-light/30 border-brand-primary/30 text-text-main shadow-sm hover:shadow-md'}`}
-                  >
-                    <div className={`mt-1 mr-3 w-2 h-2 rounded-full flex-shrink-0 ${notif.isRead ? 'bg-transparent' : 'bg-danger-tag'}`}></div>
-                    <div>
-                      <p className={`mb-1.5 ${notif.isRead ? 'font-normal' : 'font-semibold text-brand-dark'}`}>{notif.message}</p>
-                      <span className="text-xs text-text-muted font-medium flex items-center">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {new Date(notif.createdAt).toLocaleDateString()} at {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            
-            {notifications.length > 0 && (
-              <div className="p-4 border-t border-border-subtle text-center bg-gray-50/50 rounded-b-2xl">
-                <button className="text-sm font-semibold text-brand-primary hover:text-brand-dark transition">Mark all as read</button>
-              </div>
-            )}
-          </div>
-
-          {/* Active Swap Requests Placeholder */}
-          <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm">
-            <h2 className="text-lg font-bold text-brand-dark mb-4">Active Requests</h2>
-            <div className="p-4 bg-brand-light/50 rounded-xl border border-dashed border-danger-tag/40 text-center">
-              <ArrowRightLeft className="w-8 h-8 mx-auto text-danger-tag mb-2 opacity-80" />
-              <p className="text-sm font-medium text-brand-dark mb-1">No active requests</p>
-              <p className="text-xs text-text-muted">When someone requests your item, it will appear here.</p>
-            </div>
-          </div>
         </div>
 
       </div>
