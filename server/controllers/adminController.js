@@ -141,6 +141,28 @@ exports.toggleUserBlock = async (req, res) => {
   }
 };
 
+// @desc    Delete a user
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (user.role === 'admin') return res.status(400).json({ message: 'Cannot delete admins' });
+    
+    // Optional: Also delete user's listings and cleanup related swaps/reports
+    await ClothingItem.deleteMany({ owner: user._id });
+    await Report.deleteMany({ reportedBy: user._id });
+    
+    await user.deleteOne();
+    
+    res.json({ message: 'User and their listings deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Verify or unverify a listing
 // @route   PUT /api/admin/listings/:id/verify
 // @access  Private/Admin

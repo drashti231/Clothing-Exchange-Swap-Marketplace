@@ -285,6 +285,19 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+    try {
+      if (!window.confirm('Are you sure you want to permanently delete this user and all their listings? This action cannot be undone.')) return;
+      await api.delete(`/admin/users/${userId}`);
+      toast.success("User deleted successfully");
+      setUsersData(usersData.filter(u => u._id !== userId));
+      // Optionally remove their listings from state if they are currently loaded
+      setListings(listings.filter(l => l.owner?._id !== userId && l.owner !== userId));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete user");
+    }
+  };
+
   const handleResolveDispute = async (disputeId) => {
     try {
       const res = await api.put(`/admin/disputes/${disputeId}/resolve`, { resolutionNotes: 'Resolved by admin' });
@@ -616,12 +629,21 @@ export default function Admin() {
                           </button>
                           
                           {u.role !== 'admin' && (
-                            <button 
-                              onClick={() => handleBlockUser(u._id, u.isBlocked)}
-                              className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${u.isBlocked ? 'bg-success-tag/10 text-success-tag border-success-tag/20 hover:bg-success-tag hover:text-white' : 'bg-white text-danger-tag border-danger-tag/30 hover:bg-danger-tag hover:text-white'}`}
-                            >
-                              {u.isBlocked ? 'Unblock' : 'Block'}
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => handleBlockUser(u._id, u.isBlocked)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${u.isBlocked ? 'bg-success-tag/10 text-success-tag border-success-tag/20 hover:bg-success-tag hover:text-white' : 'bg-white text-danger-tag border-danger-tag/30 hover:bg-danger-tag hover:text-white'}`}
+                              >
+                                {u.isBlocked ? 'Unblock' : 'Block'}
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteUser(u._id)}
+                                className="p-2 rounded-xl bg-white border border-danger-tag/30 text-danger-tag hover:bg-danger-tag hover:text-white transition"
+                                title="Delete User"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
                           )}
                         </td>
                       </tr>

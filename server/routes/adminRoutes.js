@@ -11,7 +11,8 @@ const {
   toggleListingVerification,
   getReports,
   dismissReport,
-  removeReportedItem
+  removeReportedItem,
+  deleteUser
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -24,6 +25,7 @@ router.get('/swaps', getAllSwaps);
 router.get('/disputes', getDisputes);
 router.put('/disputes/:id/resolve', resolveDispute);
 router.put('/users/:id/block', toggleUserBlock);
+router.delete('/users/:id', deleteUser);
 router.put('/listings/:id/verify', toggleListingVerification);
 
 router.get('/reports', getReports);
