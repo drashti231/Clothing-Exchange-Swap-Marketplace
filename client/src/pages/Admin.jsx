@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { 
   Users, Shirt, ArrowRightLeft, AlertTriangle, 
   Search, ShieldCheck, LayoutDashboard, FileText, 
-  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar, Menu
+  BarChart3, Settings, LogOut, ChevronDown, CheckCircle, XCircle, Eye, X, MapPin, Mail, Phone, Calendar, Menu, Trash2, Check, DollarSign, Activity, Flag
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
@@ -15,141 +15,124 @@ import {
 
 const UserDetailsModal = ({ user, onClose, allListings, allSwaps }) => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [swapFilter, setSwapFilter] = useState('all'); // all, incoming, outgoing
-  const [swapStatusFilter, setSwapStatusFilter] = useState('all'); // all, active, completed, cancelled
+  const [swapFilter, setSwapFilter] = useState('all'); 
+  const [swapStatusFilter, setSwapStatusFilter] = useState('all'); 
 
   if (!user) return null;
 
   const userListings = allListings.filter(l => l.owner?._id === user._id);
-  
   let userSwaps = allSwaps.filter(s => s.requester?._id === user._id || s.receiver?._id === user._id);
   
-  if (swapFilter === 'incoming') {
-    userSwaps = userSwaps.filter(s => s.receiver?._id === user._id);
-  } else if (swapFilter === 'outgoing') {
-    userSwaps = userSwaps.filter(s => s.requester?._id === user._id);
-  }
+  if (swapFilter === 'incoming') userSwaps = userSwaps.filter(s => s.receiver?._id === user._id);
+  else if (swapFilter === 'outgoing') userSwaps = userSwaps.filter(s => s.requester?._id === user._id);
 
-  if (swapStatusFilter === 'active') {
-    userSwaps = userSwaps.filter(s => ['pending', 'accepted'].includes(s.status));
-  } else if (swapStatusFilter === 'completed') {
-    userSwaps = userSwaps.filter(s => s.status === 'completed');
-  } else if (swapStatusFilter === 'cancelled') {
-    userSwaps = userSwaps.filter(s => ['cancelled', 'rejected'].includes(s.status));
-  }
+  if (swapStatusFilter === 'active') userSwaps = userSwaps.filter(s => ['pending', 'accepted'].includes(s.status));
+  else if (swapStatusFilter === 'completed') userSwaps = userSwaps.filter(s => s.status === 'completed');
+  else if (swapStatusFilter === 'cancelled') userSwaps = userSwaps.filter(s => ['cancelled', 'rejected'].includes(s.status));
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-brand-dark/40 backdrop-blur-sm">
+      <div className="bg-[#FAF9F6] w-full max-w-5xl h-[90vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-white/50">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+        <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between bg-white/50 backdrop-blur-md">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-full bg-brand-light flex items-center justify-center text-brand-dark font-bold text-xl">
+            <div className="w-12 h-12 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-xl shadow-sm">
               {user.name.charAt(0)}
             </div>
             <div>
               <h2 className="text-xl font-bold text-brand-dark">{user.name}</h2>
-              <p className="text-sm text-text-muted flex items-center">
-                <span className={`w-2 h-2 rounded-full mr-2 ${user.isBlocked ? 'bg-red-500' : 'bg-green-500'}`}></span>
+              <p className="text-sm text-text-muted flex items-center font-medium">
+                <span className={`w-2 h-2 rounded-full mr-2 ${user.isBlocked ? 'bg-danger-tag' : 'bg-success-tag'}`}></span>
                 {user.isBlocked ? 'Blocked Account' : 'Active Account'} • {user.role}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="p-2 bg-white hover:bg-gray-100 rounded-full transition text-gray-500 shadow-sm border border-border-subtle">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-100 px-6">
+        <div className="flex border-b border-border-subtle px-6 bg-white/30 backdrop-blur-sm">
           {['profile', 'listings', 'swaps'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-4 font-bold text-sm capitalize transition-colors relative ${
-                activeTab === tab ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
+                activeTab === tab ? 'text-brand-primary' : 'text-text-muted hover:text-brand-dark'
               }`}
             >
               {tab}
               {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary rounded-t-full"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-brand-primary rounded-t-full"></div>
               )}
             </button>
           ))}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
-          
+        <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'profile' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                <h3 className="font-bold text-brand-dark border-b border-gray-50 pb-2 mb-4">Basic Information</h3>
-                <div className="flex items-center text-sm text-gray-600"><Mail className="w-4 h-4 mr-3 text-gray-400"/> {user.email}</div>
-                <div className="flex items-center text-sm text-gray-600"><Phone className="w-4 h-4 mr-3 text-gray-400"/> {user.phone || 'No phone provided'}</div>
-                <div className="flex items-center text-sm text-gray-600"><MapPin className="w-4 h-4 mr-3 text-gray-400"/> {user.city ? `${user.city}, ${user.state}` : 'No location provided'}</div>
-                <div className="flex items-center text-sm text-gray-600"><Calendar className="w-4 h-4 mr-3 text-gray-400"/> Joined {new Date(user.createdAt).toLocaleDateString()}</div>
+              <div className="bg-white/70 backdrop-blur-md p-6 rounded-[1.5rem] border border-white shadow-sm space-y-4">
+                <h3 className="font-bold text-brand-dark border-b border-border-subtle pb-2 mb-4">Basic Information</h3>
+                <div className="flex items-center text-sm font-medium text-brand-dark"><Mail className="w-4 h-4 mr-3 text-brand-primary"/> {user.email}</div>
+                <div className="flex items-center text-sm font-medium text-brand-dark"><Phone className="w-4 h-4 mr-3 text-brand-primary"/> {user.phone || 'No phone provided'}</div>
+                <div className="flex items-center text-sm font-medium text-brand-dark"><MapPin className="w-4 h-4 mr-3 text-brand-primary"/> {user.city ? `${user.city}, ${user.state}` : 'No location provided'}</div>
+                <div className="flex items-center text-sm font-medium text-brand-dark"><Calendar className="w-4 h-4 mr-3 text-brand-primary"/> Joined {new Date(user.createdAt).toLocaleDateString()}</div>
                 
-                <div className="pt-4 mt-4 border-t border-gray-50">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Bio</p>
-                  <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">{user.bio || 'No bio provided.'}</p>
+                <div className="pt-4 mt-4 border-t border-border-subtle">
+                  <p className="text-sm font-bold text-brand-dark mb-2">Bio</p>
+                  <p className="text-sm text-text-muted bg-white border border-border-subtle p-3 rounded-xl">{user.bio || 'No bio provided.'}</p>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                <h3 className="font-bold text-brand-dark border-b border-gray-50 pb-2 mb-4">Account Settings</h3>
-                
+              <div className="bg-white/70 backdrop-blur-md p-6 rounded-[1.5rem] border border-white shadow-sm space-y-4">
+                <h3 className="font-bold text-brand-dark border-b border-border-subtle pb-2 mb-4">Account Settings</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Language</span>
-                    <span className="font-medium text-gray-800">{user.settings?.language || 'English (US)'}</span>
+                    <span className="text-text-muted font-medium">Language</span>
+                    <span className="font-bold text-brand-dark">{user.settings?.language || 'English (US)'}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Timezone</span>
-                    <span className="font-medium text-gray-800">{user.settings?.timezone?.split(')')[0] + ')' || 'Default'}</span>
+                    <span className="text-text-muted font-medium">Timezone</span>
+                    <span className="font-bold text-brand-dark">{user.settings?.timezone?.split(')')[0] + ')' || 'Default'}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Public Profile</span>
-                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.settings?.privacy?.publicProfileVisibility !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className="text-text-muted font-medium">Public Profile</span>
+                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.settings?.privacy?.publicProfileVisibility !== false ? 'bg-success-tag/10 text-success-tag' : 'bg-danger-tag/10 text-danger-tag'}`}>
                       {user.settings?.privacy?.publicProfileVisibility !== false ? 'Visible' : 'Hidden'}
                     </span>
                   </div>
-                </div>
-
-                <h4 className="font-bold text-sm text-brand-dark mt-6 mb-3">Notification Preferences</h4>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center"><CheckCircle className={`w-4 h-4 mr-2 ${user.settings?.notifications?.newSwapRequests !== false ? 'text-green-500' : 'text-gray-300'}`}/> New Swap Requests</div>
-                  <div className="flex items-center"><CheckCircle className={`w-4 h-4 mr-2 ${user.settings?.notifications?.directMessages !== false ? 'text-green-500' : 'text-gray-300'}`}/> Direct Messages</div>
-                  <div className="flex items-center"><CheckCircle className={`w-4 h-4 mr-2 ${user.settings?.notifications?.marketingNews ? 'text-green-500' : 'text-gray-300'}`}/> Marketing & News</div>
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'listings' && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-md rounded-[1.5rem] border border-white shadow-sm overflow-hidden">
               {userListings.length === 0 ? (
-                <div className="p-8 text-center text-text-muted">This user has no listings.</div>
+                <div className="p-8 text-center text-text-muted font-medium">This user has no listings.</div>
               ) : (
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-gray-50 text-text-muted">
+                  <thead className="bg-brand-light/30 text-brand-dark">
                     <tr>
-                      <th className="px-6 py-4 font-semibold">Title</th>
-                      <th className="px-6 py-4 font-semibold">Category</th>
-                      <th className="px-6 py-4 font-semibold">Condition</th>
-                      <th className="px-6 py-4 font-semibold">Status</th>
+                      <th className="px-6 py-4 font-bold">Title</th>
+                      <th className="px-6 py-4 font-bold">Category</th>
+                      <th className="px-6 py-4 font-bold">Condition</th>
+                      <th className="px-6 py-4 font-bold">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border-subtle">
                     {userListings.map(item => (
-                      <tr key={item._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-brand-dark truncate max-w-[200px]">{item.title}</td>
-                        <td className="px-6 py-4 capitalize">{item.category}</td>
-                        <td className="px-6 py-4 capitalize">{item.condition}</td>
+                      <tr key={item._id} className="hover:bg-white transition">
+                        <td className="px-6 py-4 font-bold text-brand-dark truncate max-w-[200px]">{item.title}</td>
+                        <td className="px-6 py-4 capitalize font-medium text-text-muted">{item.category}</td>
+                        <td className="px-6 py-4 capitalize font-medium text-text-muted">{item.condition}</td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                            ${item.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}
+                            ${item.status === 'available' ? 'bg-success-tag/10 text-success-tag' : 'bg-brand-light text-brand-dark'}`}
                           >
                             {item.status}
                           </span>
@@ -164,12 +147,12 @@ const UserDetailsModal = ({ user, onClose, allListings, allSwaps }) => {
 
           {activeTab === 'swaps' && (
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex flex-col sm:flex-row gap-4 justify-between bg-white/70 backdrop-blur-md p-4 rounded-[1.5rem] border border-white shadow-sm">
                 <div className="flex space-x-2">
                   {['all', 'incoming', 'outgoing'].map(f => (
                     <button 
                       key={f} onClick={() => setSwapFilter(f)}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-bold capitalize transition ${swapFilter === f ? 'bg-brand-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      className={`px-4 py-1.5 rounded-xl text-sm font-bold capitalize transition border ${swapFilter === f ? 'bg-brand-dark text-white border-brand-dark' : 'bg-white text-text-muted border-border-subtle hover:text-brand-dark'}`}
                     >
                       {f}
                     </button>
@@ -179,7 +162,7 @@ const UserDetailsModal = ({ user, onClose, allListings, allSwaps }) => {
                   {['all', 'active', 'completed', 'cancelled'].map(s => (
                     <button 
                       key={s} onClick={() => setSwapStatusFilter(s)}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-bold capitalize transition ${swapStatusFilter === s ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      className={`px-4 py-1.5 rounded-xl text-sm font-bold capitalize transition border ${swapStatusFilter === s ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-text-muted border-border-subtle hover:text-brand-dark'}`}
                     >
                       {s}
                     </button>
@@ -187,45 +170,43 @@ const UserDetailsModal = ({ user, onClose, allListings, allSwaps }) => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-white/70 backdrop-blur-md rounded-[1.5rem] border border-white shadow-sm overflow-hidden">
                 {userSwaps.length === 0 ? (
-                  <div className="p-8 text-center text-text-muted">No swaps match these filters.</div>
+                  <div className="p-8 text-center text-text-muted font-medium">No swaps match these filters.</div>
                 ) : (
                   <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-gray-50 text-text-muted">
+                    <thead className="bg-brand-light/30 text-brand-dark">
                       <tr>
-                        <th className="px-6 py-4 font-semibold">Type</th>
-                        <th className="px-6 py-4 font-semibold">Other Party</th>
-                        <th className="px-6 py-4 font-semibold">Item Involved</th>
-                        <th className="px-6 py-4 font-semibold">Status</th>
-                        <th className="px-6 py-4 font-semibold text-right">Date</th>
+                        <th className="px-6 py-4 font-bold">Type</th>
+                        <th className="px-6 py-4 font-bold">Other Party</th>
+                        <th className="px-6 py-4 font-bold">Item Involved</th>
+                        <th className="px-6 py-4 font-bold">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-border-subtle">
                       {userSwaps.map(swap => {
                         const isIncoming = swap.receiver?._id === user._id;
                         const otherParty = isIncoming ? swap.requester : swap.receiver;
                         const itemInvolved = isIncoming ? swap.requestedItem : (swap.offeredItem || swap.requestedItem);
                         
                         return (
-                          <tr key={swap._id} className="hover:bg-gray-50 transition">
+                          <tr key={swap._id} className="hover:bg-white transition">
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${isIncoming ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${isIncoming ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
                                 {isIncoming ? 'INCOMING' : 'OUTGOING'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 font-medium text-gray-800">{otherParty?.name || 'Unknown'}</td>
-                            <td className="px-6 py-4 truncate max-w-[200px] text-gray-600">{itemInvolved?.title || 'Unknown Item'}</td>
+                            <td className="px-6 py-4 font-bold text-brand-dark">{otherParty?.name || 'Unknown'}</td>
+                            <td className="px-6 py-4 truncate max-w-[200px] text-text-muted font-medium">{itemInvolved?.title || 'Unknown Item'}</td>
                             <td className="px-6 py-4">
                               <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                ${swap.status === 'completed' ? 'bg-green-100 text-green-700' : 
-                                  swap.status === 'cancelled' || swap.status === 'rejected' ? 'bg-red-100 text-red-700' : 
-                                  swap.status === 'accepted' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}
+                                ${swap.status === 'completed' ? 'bg-success-tag/10 text-success-tag' : 
+                                  swap.status === 'cancelled' || swap.status === 'rejected' ? 'bg-danger-tag/10 text-danger-tag' : 
+                                  swap.status === 'accepted' ? 'bg-blue-100 text-blue-700' : 'bg-warning-tag/10 text-warning-tag'}`}
                               >
                                 {swap.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-right text-gray-500">{new Date(swap.createdAt).toLocaleDateString()}</td>
                           </tr>
                         );
                       })}
@@ -235,7 +216,6 @@ const UserDetailsModal = ({ user, onClose, allListings, allSwaps }) => {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -255,6 +235,13 @@ export default function Admin() {
   const [listings, setListings] = useState([]);
   const [swaps, setSwaps] = useState([]);
   const [disputes, setDisputes] = useState([]);
+
+  // Mock data for new features
+  const mockRevenue = 1250.00;
+  const mockReports = [
+    { id: 1, item: 'Gucci Bag', reportedBy: 'Sarah M.', reason: 'Counterfeit item', date: '2026-09-08' },
+    { id: 2, item: 'Nike Sneakers', reportedBy: 'David L.', reason: 'Inappropriate photos', date: '2026-09-07' },
+  ];
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
@@ -319,16 +306,20 @@ export default function Admin() {
     }
   };
 
+  const handleDismissReport = (id) => {
+    toast.success("Report dismissed");
+  };
+
   const sidebarLinks = [
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Users', icon: Users },
     { name: 'Listings', icon: Shirt },
     { name: 'Swaps', icon: ArrowRightLeft },
     { name: 'Disputes', icon: AlertTriangle },
+    { name: 'Moderation', icon: Flag }, // New tab
   ];
 
-  // Helper for pie chart
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+  const COLORS = ['#1A4731', '#2C7A54', '#D9825B', '#E5A991', '#8B5CF6'];
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     if (percent === 0) return null;
@@ -344,8 +335,11 @@ export default function Admin() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#F8F9FA] flex overflow-hidden font-sans text-text-main">
+    <div className="fixed inset-0 z-[100] bg-[#FAF9F6] flex overflow-hidden font-sans text-text-main relative">
       
+      {/* Decorative ambient blobs */}
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] -translate-x-1/4 -translate-y-1/4 pointer-events-none"></div>
+
       <UserDetailsModal 
         user={selectedUserForDetails} 
         onClose={() => setSelectedUserForDetails(null)} 
@@ -354,29 +348,33 @@ export default function Admin() {
       />
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-[150] w-64 bg-white border-r border-border-subtle flex flex-col h-full shadow-lg shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="h-[72px] flex items-center justify-between px-6 border-b border-border-subtle shrink-0">
-          <Link to="/" className="flex items-center space-x-2 font-bold text-xl tracking-tight hover:opacity-90 transition text-brand-dark">
-            <Shirt className="h-6 w-6 text-brand-primary" fill="currentColor" />
-            <span>ReWear <span className="text-brand-primary font-medium text-sm ml-1">Admin</span></span>
+      <aside className={`fixed inset-y-0 left-0 z-[150] w-64 bg-white/70 backdrop-blur-xl border-r border-white flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-[80px] flex items-center justify-between px-6 border-b border-white shrink-0">
+          <Link to="/" className="flex items-center space-x-2 font-bold text-2xl tracking-tight hover:opacity-90 transition text-brand-dark">
+            <div className="p-1.5 bg-brand-dark rounded-xl"><Shirt className="h-5 w-5 text-white" fill="currentColor" /></div>
+            <span>ReWear</span>
           </Link>
           <button className="md:hidden text-text-muted" onClick={() => setIsMobileSidebarOpen(false)}>
             <X className="w-6 h-6" />
           </button>
         </div>
         
-        <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto hide-scrollbar">
+        <div className="px-6 py-4">
+           <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Admin Panel</p>
+        </div>
+
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto hide-scrollbar">
           {sidebarLinks.map((link) => (
             <button
               key={link.name}
               onClick={() => { setActiveTab(link.name); setIsMobileSidebarOpen(false); }}
-              className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              className={`w-full flex items-center px-4 py-3 rounded-[1rem] text-sm font-bold transition-all ${
                 activeTab === link.name 
-                  ? 'bg-brand-light text-brand-dark shadow-sm' 
-                  : 'text-text-muted hover:bg-gray-50 hover:text-brand-dark'
+                  ? 'bg-brand-dark text-white shadow-md shadow-brand-dark/20' 
+                  : 'text-text-muted hover:bg-white hover:text-brand-dark hover:shadow-sm'
               }`}
             >
-              <link.icon className={`w-5 h-5 mr-3 ${activeTab === link.name ? 'text-brand-primary' : 'text-text-muted'}`} />
+              <link.icon className={`w-5 h-5 mr-3 ${activeTab === link.name ? 'text-brand-light' : 'text-text-muted'}`} />
               {link.name}
             </button>
           ))}
@@ -386,44 +384,47 @@ export default function Admin() {
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[140] md:hidden" 
+          className="fixed inset-0 bg-brand-dark/40 backdrop-blur-sm z-[140] md:hidden" 
           onClick={() => setIsMobileSidebarOpen(false)}
         ></div>
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden w-full">
+      <main className="flex-1 flex flex-col h-full overflow-hidden w-full relative z-10">
         {/* Header */}
-        <header className="h-[72px] bg-white border-b border-border-subtle flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header className="h-[80px] bg-white/50 backdrop-blur-md border-b border-white flex items-center justify-between px-6 sm:px-10 shrink-0">
           <div className="flex items-center space-x-4">
             <button 
-              className="md:hidden text-text-muted hover:text-brand-dark focus:outline-none"
+              className="md:hidden text-text-muted hover:text-brand-dark focus:outline-none bg-white p-2 rounded-xl shadow-sm border border-border-subtle"
               onClick={() => setIsMobileSidebarOpen(true)}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-lg sm:text-xl font-bold text-brand-dark truncate">{activeTab}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-brand-dark truncate">{activeTab}</h1>
           </div>
           
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4">
+            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brand-dark shadow-sm border border-white hover:shadow-md transition">
+               <Bell className="w-5 h-5" />
+            </button>
             <div className="relative">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 rounded-full pr-3 py-1 pl-1 transition border border-border-subtle"
+                className="flex items-center space-x-3 focus:outline-none bg-white hover:bg-gray-50 rounded-full pr-4 py-1.5 pl-1.5 transition shadow-sm border border-white"
               >
                 <img 
                   src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=1A4731&color=fff`} 
                   alt="Admin" 
-                  className="w-7 h-7 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover"
                 />
-                <span className="text-sm font-semibold text-brand-dark hidden sm:block">Admin</span>
+                <span className="text-sm font-bold text-brand-dark hidden sm:block">Admin</span>
                 <ChevronDown className="w-4 h-4 text-text-muted" />
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-border-subtle py-1 z-50">
-                  <Link to="/" className="block px-4 py-2 text-sm text-text-muted hover:bg-gray-50 hover:text-brand-dark">Back to Site</Link>
-                  <button onClick={logout} className="block w-full text-left px-4 py-2 text-sm text-danger-tag hover:bg-red-50">Logout</button>
+                <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-lg rounded-[1rem] shadow-xl border border-white py-2 z-50">
+                  <Link to="/" className="block px-4 py-2 text-sm font-bold text-text-muted hover:bg-brand-light hover:text-brand-dark transition">View Live Site</Link>
+                  <button onClick={logout} className="block w-full text-left px-4 py-2 text-sm font-bold text-danger-tag hover:bg-danger-tag/10 transition">Logout</button>
                 </div>
               )}
             </div>
@@ -431,58 +432,97 @@ export default function Admin() {
         </header>
 
         {/* Dashboard Content */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar">
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-primary"></div>
             </div>
           ) : activeTab === 'Dashboard' && stats ? (
-            <div className="max-w-5xl space-y-6">
-              {/* Stats Row */}
+            <div className="max-w-7xl mx-auto space-y-8">
+              
+              {/* Top Metrics Row - Glassmorphic Bento Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm flex flex-col items-center justify-center text-center">
-                  <h3 className="text-3xl font-bold text-brand-dark mb-1">{stats.totalUsers}</h3>
-                  <p className="text-sm font-medium text-text-muted">Total Users</p>
+                
+                <div className="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] border border-white shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl group-hover:bg-brand-primary/20 transition"></div>
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                     <div className="p-3 bg-white rounded-[1rem] shadow-sm text-brand-dark"><Users className="w-6 h-6" /></div>
+                     <span className="bg-success-tag/10 text-success-tag text-xs font-bold px-2 py-1 rounded-md">+12%</span>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-bold text-text-muted uppercase tracking-wider mb-1">Total Users</p>
+                    <h3 className="text-4xl font-black text-brand-dark">{stats.totalUsers}</h3>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm flex flex-col items-center justify-center text-center">
-                  <h3 className="text-3xl font-bold text-brand-dark mb-1">{stats.totalItems}</h3>
-                  <p className="text-sm font-medium text-text-muted">Total Listings</p>
+
+                <div className="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] border border-white shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                     <div className="p-3 bg-white rounded-[1rem] shadow-sm text-blue-600"><Shirt className="w-6 h-6" /></div>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-bold text-text-muted uppercase tracking-wider mb-1">Active Listings</p>
+                    <h3 className="text-4xl font-black text-brand-dark">{stats.totalItems}</h3>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm flex flex-col items-center justify-center text-center">
-                  <h3 className="text-3xl font-bold text-brand-dark mb-1">{stats.totalSwaps}</h3>
-                  <p className="text-sm font-medium text-text-muted">Total Swaps</p>
+
+                <div className="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] border border-white shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-all">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition"></div>
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                     <div className="p-3 bg-white rounded-[1rem] shadow-sm text-purple-600"><ArrowRightLeft className="w-6 h-6" /></div>
+                     <span className="bg-success-tag/10 text-success-tag text-xs font-bold px-2 py-1 rounded-md">+5%</span>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-bold text-text-muted uppercase tracking-wider mb-1">Total Swaps</p>
+                    <h3 className="text-4xl font-black text-brand-dark">{stats.totalSwaps}</h3>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm flex flex-col items-center justify-center text-center">
-                  <h3 className="text-3xl font-bold text-brand-dark mb-1">{stats.activeDisputes}</h3>
-                  <p className="text-sm font-medium text-text-muted">Open Disputes</p>
+
+                {/* Revenue Card (Mock) */}
+                <div className="bg-gradient-to-br from-brand-dark to-[#0f2b1d] p-6 rounded-[2rem] border border-brand-primary shadow-md flex flex-col justify-between relative overflow-hidden group">
+                  <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                     <div className="p-3 bg-white/10 backdrop-blur-md rounded-[1rem] text-white border border-white/20"><DollarSign className="w-6 h-6" /></div>
+                     <span className="bg-white/20 text-white backdrop-blur-md text-xs font-bold px-2 py-1 rounded-md">+24%</span>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-bold text-brand-light/80 uppercase tracking-wider mb-1">Shipping Revenue</p>
+                    <h3 className="text-4xl font-black text-white">${mockRevenue.toFixed(2)}</h3>
+                  </div>
                 </div>
               </div>
 
               {/* Charts Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Categories */}
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm h-80 flex flex-col">
-                  <h3 className="text-[15px] font-bold text-brand-dark mb-6">Listings by Category</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                {/* Activity & Categories */}
+                <div className="bg-white/70 backdrop-blur-md p-8 rounded-[2rem] border border-white shadow-sm h-96 flex flex-col">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-brand-dark">Listings by Category</h3>
+                    <div className="p-2 bg-brand-light/50 rounded-lg text-brand-dark"><Activity className="w-5 h-5"/></div>
+                  </div>
                   <div className="flex-1 w-full">
                     {stats.categoryData?.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={stats.categoryData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                          <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                          <RechartsTooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                          <Bar dataKey="count" fill="#1A4731" radius={[4, 4, 0, 0]} barSize={32} />
+                          <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 600 }} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 600 }} />
+                          <RechartsTooltip cursor={{ fill: 'rgba(26, 71, 49, 0.05)' }} contentStyle={{ borderRadius: '16px', border: '1px solid #fff', boxShadow: '0 4px 20px -2px rgba(0,0,0,0.1)', padding: '12px' }} />
+                          <Bar dataKey="count" fill="#1A4731" radius={[8, 8, 8, 8]} barSize={40} />
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-text-muted text-sm">No category data available</div>
+                      <div className="h-full flex items-center justify-center text-text-muted font-medium">No category data available</div>
                     )}
                   </div>
                 </div>
 
                 {/* Swap Status */}
-                <div className="bg-white p-6 rounded-2xl border border-border-subtle shadow-sm h-80 flex flex-col">
-                  <h3 className="text-[15px] font-bold text-brand-dark mb-2">Swap Status Breakdown</h3>
+                <div className="bg-white/70 backdrop-blur-md p-8 rounded-[2rem] border border-white shadow-sm h-96 flex flex-col">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-bold text-brand-dark">Swap Outcomes</h3>
+                  </div>
                   <div className="flex-1 flex items-center justify-center relative w-full">
                     {stats.swapStatusData?.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
@@ -491,9 +531,9 @@ export default function Admin() {
                             data={stats.swapStatusData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={50}
-                            outerRadius={90}
-                            paddingAngle={2}
+                            innerRadius={70}
+                            outerRadius={110}
+                            paddingAngle={5}
                             dataKey="count"
                             nameKey="_id"
                             stroke="none"
@@ -504,193 +544,263 @@ export default function Admin() {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <RechartsTooltip />
-                          <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                          <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                          <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontWeight: 600, fontSize: '13px' }}/>
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-text-muted text-sm">No swap data available</div>
+                      <div className="h-full flex items-center justify-center text-text-muted font-medium">No swap data available</div>
                     )}
                   </div>
                 </div>
               </div>
             </div>
           ) : activeTab === 'Users' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-50 text-text-muted">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">Name</th>
-                    <th className="px-6 py-4 font-semibold">Email</th>
-                    <th className="px-6 py-4 font-semibold">Role</th>
-                    <th className="px-6 py-4 font-semibold">Status</th>
-                    <th className="px-6 py-4 font-semibold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle">
-                  {usersData.map(u => (
-                    <tr key={u._id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 font-medium text-brand-dark">{u.name}</td>
-                      <td className="px-6 py-4">{u.email}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {u.isBlocked ? (
-                          <span className="flex items-center text-danger-tag"><XCircle className="w-4 h-4 mr-1"/> Blocked</span>
-                        ) : u.isVerified ? (
-                          <span className="flex items-center text-green-600"><CheckCircle className="w-4 h-4 mr-1"/> Verified</span>
-                        ) : (
-                          <span className="text-yellow-600 font-medium">Active</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
-                        <button 
-                          onClick={() => setSelectedUserForDetails(u)}
-                          className="px-3 py-1.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center"
-                        >
-                          <Eye className="w-3 h-3 mr-1" /> View Details
-                        </button>
-                        
-                        {u.role !== 'admin' && (
-                          <button 
-                            onClick={() => handleBlockUser(u._id, u.isBlocked)}
-                            className={`px-3 py-1.5 rounded-md text-xs font-bold ${u.isBlocked ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
-                          >
-                            {u.isBlocked ? 'Unblock' : 'Block'}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : activeTab === 'Listings' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-50 text-text-muted">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">Title</th>
-                    <th className="px-6 py-4 font-semibold">Category</th>
-                    <th className="px-6 py-4 font-semibold">Condition</th>
-                    <th className="px-6 py-4 font-semibold">Owner</th>
-                    <th className="px-6 py-4 font-semibold">Status</th>
-                    <th className="px-6 py-4 font-semibold text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle">
-                  {listings.map(item => (
-                    <tr key={item._id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 font-medium text-brand-dark truncate max-w-xs">{item.title}</td>
-                      <td className="px-6 py-4 capitalize">{item.category}</td>
-                      <td className="px-6 py-4 capitalize">{item.condition}</td>
-                      <td className="px-6 py-4">{item.owner?.name || 'Unknown'}</td>
-                      <td className="px-6 py-4">
-                        {item.isVerified ? (
-                          <span className="flex items-center text-green-600 font-medium text-xs"><CheckCircle className="w-3 h-3 mr-1"/> Verified</span>
-                        ) : (
-                          <span className="text-gray-500 font-medium text-xs">Unverified</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button 
-                          onClick={() => handleVerifyListing(item._id, item.isVerified)}
-                          className={`px-3 py-1.5 rounded-md text-xs font-bold ${item.isVerified ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
-                        >
-                          {item.isVerified ? 'Unverify' : 'Verify'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : activeTab === 'Swaps' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-50 text-text-muted">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">Requester</th>
-                    <th className="px-6 py-4 font-semibold">Requested Item</th>
-                    <th className="px-6 py-4 font-semibold">Owner</th>
-                    <th className="px-6 py-4 font-semibold">Status</th>
-                    <th className="px-6 py-4 font-semibold text-right">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle">
-                  {swaps.map(swap => (
-                    <tr key={swap._id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 font-medium text-brand-dark">{swap.requester?.name || 'Unknown'}</td>
-                      <td className="px-6 py-4 truncate max-w-xs">{swap.requestedItem?.title || 'Unknown Item'}</td>
-                      <td className="px-6 py-4">{swap.receiver?.name || 'Unknown'}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                          ${swap.status === 'completed' ? 'bg-green-100 text-green-700' : 
-                            swap.status === 'cancelled' || swap.status === 'rejected' ? 'bg-red-100 text-red-700' : 
-                            swap.status === 'accepted' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}
-                        >
-                          {swap.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">{new Date(swap.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : activeTab === 'Disputes' ? (
-            <div className="bg-white rounded-2xl border border-border-subtle shadow-sm overflow-x-auto">
-              {disputes.length === 0 ? (
-                <div className="p-8 text-center text-text-muted">No disputes found.</div>
-              ) : (
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-border-subtle bg-white/50">
+                 <h2 className="text-xl font-bold text-brand-dark">Manage Users</h2>
+              </div>
+              <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead className="bg-gray-50 text-text-muted">
+                  <thead className="bg-brand-light/30 text-brand-dark">
                     <tr>
-                      <th className="px-6 py-4 font-semibold">Raised By</th>
-                      <th className="px-6 py-4 font-semibold">Reason</th>
-                      <th className="px-6 py-4 font-semibold">Status</th>
-                      <th className="px-6 py-4 font-semibold text-right">Action</th>
+                      <th className="px-6 py-4 font-bold">Name</th>
+                      <th className="px-6 py-4 font-bold">Email</th>
+                      <th className="px-6 py-4 font-bold">Role</th>
+                      <th className="px-6 py-4 font-bold">Status</th>
+                      <th className="px-6 py-4 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border-subtle">
-                    {disputes.map(d => (
-                      <tr key={d._id} className="hover:bg-gray-50 transition">
-                        <td className="px-6 py-4 font-medium text-brand-dark">{d.raisedBy?.name || 'Unknown'}</td>
-                        <td className="px-6 py-4">{d.reason}</td>
+                    {usersData.map(u => (
+                      <tr key={u._id} className="hover:bg-white transition">
+                        <td className="px-6 py-4 font-bold text-brand-dark">{u.name}</td>
+                        <td className="px-6 py-4 font-medium text-text-muted">{u.email}</td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                            ${d.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}
-                          >
-                            {d.status}
+                          <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${u.role === 'admin' ? 'bg-brand-dark text-white' : 'bg-brand-light text-brand-dark'}`}>
+                            {u.role}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          {d.status === 'open' ? (
-                            <button 
-                              onClick={() => handleResolveDispute(d._id)}
-                              className="px-3 py-1.5 bg-brand-primary text-white rounded-md text-xs font-bold hover:bg-brand-dark transition"
-                            >
-                              Resolve
-                            </button>
+                        <td className="px-6 py-4">
+                          {u.isBlocked ? (
+                            <span className="flex items-center text-danger-tag font-bold"><XCircle className="w-4 h-4 mr-1.5"/> Blocked</span>
+                          ) : u.isVerified ? (
+                            <span className="flex items-center text-success-tag font-bold"><CheckCircle className="w-4 h-4 mr-1.5"/> Verified</span>
                           ) : (
-                            <span className="text-text-muted text-xs">Resolved</span>
+                            <span className="text-warning-tag font-bold flex items-center"><Activity className="w-4 h-4 mr-1.5"/> Active</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right flex items-center justify-end space-x-3">
+                          <button 
+                            onClick={() => setSelectedUserForDetails(u)}
+                            className="p-2 rounded-xl bg-white border border-border-subtle text-text-muted hover:text-brand-dark hover:shadow-sm transition"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          
+                          {u.role !== 'admin' && (
+                            <button 
+                              onClick={() => handleBlockUser(u._id, u.isBlocked)}
+                              className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${u.isBlocked ? 'bg-success-tag/10 text-success-tag border-success-tag/20 hover:bg-success-tag hover:text-white' : 'bg-white text-danger-tag border-danger-tag/30 hover:bg-danger-tag hover:text-white'}`}
+                            >
+                              {u.isBlocked ? 'Unblock' : 'Block'}
+                            </button>
                           )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              )}
+              </div>
+            </div>
+          ) : activeTab === 'Listings' ? (
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
+               <div className="p-6 border-b border-border-subtle bg-white/50">
+                 <h2 className="text-xl font-bold text-brand-dark">Review Listings</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-brand-light/30 text-brand-dark">
+                    <tr>
+                      <th className="px-6 py-4 font-bold">Title</th>
+                      <th className="px-6 py-4 font-bold">Category</th>
+                      <th className="px-6 py-4 font-bold">Condition</th>
+                      <th className="px-6 py-4 font-bold">Owner</th>
+                      <th className="px-6 py-4 font-bold">Status</th>
+                      <th className="px-6 py-4 font-bold text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-subtle">
+                    {listings.map(item => (
+                      <tr key={item._id} className="hover:bg-white transition">
+                        <td className="px-6 py-4 font-bold text-brand-dark truncate max-w-[200px]">{item.title}</td>
+                        <td className="px-6 py-4 capitalize font-medium text-text-muted">{item.category}</td>
+                        <td className="px-6 py-4 capitalize font-medium text-text-muted">{item.condition}</td>
+                        <td className="px-6 py-4 font-bold text-brand-dark">{item.owner?.name || 'Unknown'}</td>
+                        <td className="px-6 py-4">
+                          {item.isVerified ? (
+                            <span className="flex items-center text-success-tag font-bold text-xs"><CheckCircle className="w-4 h-4 mr-1.5"/> Verified</span>
+                          ) : (
+                            <span className="text-text-muted font-bold text-xs flex items-center"><AlertTriangle className="w-4 h-4 mr-1.5"/> Unverified</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => handleVerifyListing(item._id, item.isVerified)}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${item.isVerified ? 'bg-white text-warning-tag border-warning-tag/30 hover:bg-warning-tag hover:text-white' : 'bg-brand-dark text-white border-brand-dark hover:bg-brand-primary'}`}
+                          >
+                            {item.isVerified ? 'Unverify' : 'Verify'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : activeTab === 'Swaps' ? (
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
+               <div className="p-6 border-b border-border-subtle bg-white/50">
+                 <h2 className="text-xl font-bold text-brand-dark">Monitor Swaps</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-brand-light/30 text-brand-dark">
+                    <tr>
+                      <th className="px-6 py-4 font-bold">Requester</th>
+                      <th className="px-6 py-4 font-bold">Requested Item</th>
+                      <th className="px-6 py-4 font-bold">Owner</th>
+                      <th className="px-6 py-4 font-bold">Status</th>
+                      <th className="px-6 py-4 font-bold text-right">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-subtle">
+                    {swaps.map(swap => (
+                      <tr key={swap._id} className="hover:bg-white transition">
+                        <td className="px-6 py-4 font-bold text-brand-dark">{swap.requester?.name || 'Unknown'}</td>
+                        <td className="px-6 py-4 truncate max-w-[200px] font-medium text-text-muted">{swap.requestedItem?.title || 'Unknown Item'}</td>
+                        <td className="px-6 py-4 font-bold text-brand-dark">{swap.receiver?.name || 'Unknown'}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                            ${swap.status === 'completed' ? 'bg-success-tag/10 text-success-tag' : 
+                              swap.status === 'cancelled' || swap.status === 'rejected' ? 'bg-danger-tag/10 text-danger-tag' : 
+                              swap.status === 'accepted' ? 'bg-blue-100 text-blue-700' : 'bg-warning-tag/10 text-warning-tag'}`}
+                          >
+                            {swap.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right font-medium text-text-muted">{new Date(swap.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : activeTab === 'Moderation' ? (
+             <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
+               <div className="p-6 border-b border-border-subtle bg-white/50 flex justify-between items-center">
+                 <h2 className="text-xl font-bold text-brand-dark">Reported Content</h2>
+                 <span className="bg-danger-tag text-white px-3 py-1 rounded-full text-xs font-bold">{mockReports.length} Active</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-brand-light/30 text-brand-dark">
+                    <tr>
+                      <th className="px-6 py-4 font-bold">Item</th>
+                      <th className="px-6 py-4 font-bold">Reported By</th>
+                      <th className="px-6 py-4 font-bold">Reason</th>
+                      <th className="px-6 py-4 font-bold">Date</th>
+                      <th className="px-6 py-4 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-subtle">
+                    {mockReports.map(report => (
+                      <tr key={report.id} className="hover:bg-white transition">
+                        <td className="px-6 py-4 font-bold text-brand-dark">{report.item}</td>
+                        <td className="px-6 py-4 font-medium text-text-muted">{report.reportedBy}</td>
+                        <td className="px-6 py-4">
+                          <span className="bg-danger-tag/10 text-danger-tag px-3 py-1.5 rounded-xl font-bold text-xs">{report.reason}</span>
+                        </td>
+                        <td className="px-6 py-4 font-medium text-text-muted">{report.date}</td>
+                        <td className="px-6 py-4 text-right flex items-center justify-end space-x-3">
+                          <button 
+                            onClick={() => handleDismissReport(report.id)}
+                            className="px-4 py-2 rounded-xl bg-white border border-border-subtle text-text-main font-bold text-xs hover:bg-gray-50 transition"
+                          >
+                            Dismiss
+                          </button>
+                          <button 
+                            className="px-4 py-2 rounded-xl bg-danger-tag text-white font-bold text-xs hover:bg-red-700 transition flex items-center"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1.5" /> Remove Item
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : activeTab === 'Disputes' ? (
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white shadow-sm overflow-hidden">
+               <div className="p-6 border-b border-border-subtle bg-white/50">
+                 <h2 className="text-xl font-bold text-brand-dark">Manage Disputes</h2>
+              </div>
+              <div className="overflow-x-auto">
+                {disputes.length === 0 ? (
+                  <div className="p-12 text-center text-text-muted">
+                    <CheckCircle className="w-12 h-12 text-success-tag mx-auto mb-4 opacity-50" />
+                    <p className="font-bold text-lg">No disputes found.</p>
+                    <p className="text-sm mt-1">All swaps are going smoothly.</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-brand-light/30 text-brand-dark">
+                      <tr>
+                        <th className="px-6 py-4 font-bold">Raised By</th>
+                        <th className="px-6 py-4 font-bold">Reason</th>
+                        <th className="px-6 py-4 font-bold">Status</th>
+                        <th className="px-6 py-4 font-bold text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-subtle">
+                      {disputes.map(d => (
+                        <tr key={d._id} className="hover:bg-white transition">
+                          <td className="px-6 py-4 font-bold text-brand-dark">{d.raisedBy?.name || 'Unknown'}</td>
+                          <td className="px-6 py-4 font-medium text-text-muted">{d.reason}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                              ${d.status === 'resolved' ? 'bg-success-tag/10 text-success-tag' : 'bg-warning-tag/10 text-warning-tag'}`}
+                            >
+                              {d.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {d.status === 'open' ? (
+                              <button 
+                                onClick={() => handleResolveDispute(d._id)}
+                                className="px-4 py-2 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-primary transition shadow-sm"
+                              >
+                                Resolve
+                              </button>
+                            ) : (
+                              <span className="text-text-muted font-bold text-xs flex items-center justify-end"><Check className="w-4 h-4 mr-1 text-success-tag"/> Resolved</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex justify-center items-center h-full text-text-muted">
-              <div className="text-center">
-                <LayoutDashboard className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <h2 className="text-xl font-bold text-brand-dark mb-2">{activeTab}</h2>
-                <p>This module is currently being built.</p>
+              <div className="text-center bg-white/50 backdrop-blur-md p-10 rounded-[2rem] border border-white shadow-sm">
+                <LayoutDashboard className="w-16 h-16 mx-auto mb-4 text-brand-light" />
+                <h2 className="text-2xl font-bold text-brand-dark mb-2">{activeTab}</h2>
+                <p className="font-medium">This module is currently being built.</p>
               </div>
             </div>
           )}
