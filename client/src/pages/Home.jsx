@@ -5,12 +5,12 @@ import SwapMatch from '../components/SwapMatch';
 
 export default function Home() {
   const categories = [
-    { name: "Tops", image: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?auto=format&fit=crop&q=80&w=500" },
+    { name: "Tops", image: "https://images.unsplash.com/photo-1434389678369-182cb08eaf0c?auto=format&fit=crop&q=80&w=500" },
     { name: "Dresses", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=500" },
     { name: "Jeans", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=500" },
-    { name: "Jackets", image: "https://images.unsplash.com/photo-1551028719-0c1efc40599a?auto=format&fit=crop&q=80&w=500" },
+    { name: "Jackets", image: "https://images.unsplash.com/photo-1559551409-dadc959f76b8?auto=format&fit=crop&q=80&w=500" },
     { name: "Footwear", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=500" },
-    { name: "Accessories", image: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=80&w=500" }
+    { name: "Accessories", image: "https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&q=80&w=500" }
   ];
 
   return (
