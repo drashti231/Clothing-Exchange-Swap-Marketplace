@@ -335,7 +335,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#FAF9F6] flex overflow-hidden font-sans text-text-main relative">
+    <div className="fixed inset-0 z-[100] bg-[#FAF9F6] flex overflow-hidden font-sans text-text-main">
       
       {/* Decorative ambient blobs */}
       <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] -translate-x-1/4 -translate-y-1/4 pointer-events-none"></div>
