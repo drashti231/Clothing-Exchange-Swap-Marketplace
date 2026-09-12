@@ -14,6 +14,7 @@ export default function Swaps() {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedSwap, setSelectedSwap] = useState(null);
+  const [trackingInput, setTrackingInput] = useState('');
 
   // Check URL for payment success/cancel
   useEffect(() => {
@@ -113,6 +114,29 @@ export default function Swaps() {
       setActionLoading(null);
     }
   };
+
+  const handleUpdateTracking = async (swapId) => {
+    if (!trackingInput.trim()) {
+      toast.error('Please enter a tracking number');
+      return;
+    }
+    try {
+      setActionLoading(`tracking-${swapId}`);
+      await api.put(`/swaps/${swapId}/tracking`, { trackingNumber: trackingInput });
+      toast.success('Tracking number updated');
+      setTrackingInput('');
+      setSelectedSwap(prev => ({
+        ...prev,
+        [prev.receiver._id === user._id ? 'receiverTrackingNumber' : 'requesterTrackingNumber']: trackingInput
+      }));
+      fetchSwaps();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update tracking');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
 
   const renderSwapCard = (swap) => {
     const isReceived = swap.receiver._id === user._id;
@@ -257,7 +281,7 @@ export default function Swaps() {
         <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
             <h2 className="text-xl font-bold text-brand-dark">Swap Details</h2>
-            <button onClick={() => setSelectedSwap(null)} className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500">
+            <button onClick={() => { setSelectedSwap(null); setTrackingInput(''); }} className="p-2 hover:bg-gray-200 rounded-full transition text-gray-500">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -275,16 +299,53 @@ export default function Swaps() {
               <p className="font-medium text-gray-800 mt-1 capitalize">{selectedSwap.deliveryMethod || 'Not specified'}</p>
             </div>
             {selectedSwap.deliveryMethod?.toLowerCase() === 'shipping' && (
-              <div>
-                <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Shipping Payment</span>
-                <p className="font-medium text-gray-800 mt-1">
-                  {(isReceived ? selectedSwap.receiverShippingPaid : selectedSwap.requesterShippingPaid) ? (
-                    <span className="text-success-tag flex items-center"><Check className="w-4 h-4 mr-1" /> Paid</span>
-                  ) : (
-                    <span className="text-warning-tag">Pending</span>
-                  )}
-                </p>
-              </div>
+              <>
+                <div>
+                  <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Shipping Payment</span>
+                  <p className="font-medium text-gray-800 mt-1">
+                    {(isReceived ? selectedSwap.receiverShippingPaid : selectedSwap.requesterShippingPaid) ? (
+                      <span className="text-success-tag flex items-center"><Check className="w-4 h-4 mr-1" /> Paid</span>
+                    ) : (
+                      <span className="text-warning-tag">Pending</span>
+                    )}
+                  </p>
+                </div>
+                {selectedSwap.status === 'accepted' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div>
+                      <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wider">Partner's Tracking #</span>
+                      <p className="font-medium text-blue-900 mt-1">
+                        {(isReceived ? selectedSwap.requesterTrackingNumber : selectedSwap.receiverTrackingNumber) || 'Not provided yet'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wider">Your Tracking #</span>
+                      {(isReceived ? selectedSwap.receiverTrackingNumber : selectedSwap.requesterTrackingNumber) ? (
+                        <p className="font-medium text-blue-900 mt-1">
+                          {(isReceived ? selectedSwap.receiverTrackingNumber : selectedSwap.requesterTrackingNumber)}
+                        </p>
+                      ) : (
+                        <div className="flex mt-1">
+                          <input 
+                            type="text" 
+                            placeholder="Enter tracking ID" 
+                            className="flex-1 text-sm border-blue-200 rounded-l-md px-2 py-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            value={trackingInput}
+                            onChange={(e) => setTrackingInput(e.target.value)}
+                          />
+                          <button 
+                            onClick={() => handleUpdateTracking(selectedSwap._id)}
+                            disabled={actionLoading === `tracking-${selectedSwap._id}`}
+                            className="bg-blue-600 text-white px-3 py-1 text-sm font-semibold rounded-r-md hover:bg-blue-700 transition disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <div>
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Initial Message</span>
@@ -298,7 +359,7 @@ export default function Swaps() {
             </div>
           </div>
           <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-             <button onClick={() => setSelectedSwap(null)} className="px-6 py-2 bg-brand-dark text-white rounded-md font-bold text-sm hover:bg-brand-primary transition">
+             <button onClick={() => { setSelectedSwap(null); setTrackingInput(''); }} className="px-6 py-2 bg-brand-dark text-white rounded-md font-bold text-sm hover:bg-brand-primary transition">
                Close
              </button>
           </div>
