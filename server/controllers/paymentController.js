@@ -64,12 +64,19 @@ exports.createCheckoutSession = async (req, res) => {
 exports.confirmPayment = async (req, res) => {
   try {
     const { swapId } = req.body;
+    const userId = req.user._id.toString();
     
     const swap = await SwapRequest.findById(swapId);
     if (!swap) return res.status(404).json({ message: 'Swap not found' });
 
-    // Just save a note that shipping is paid (you could add an 'isShippingPaid' boolean to the schema)
-    // For now, we just return success
+    // Mark as paid for the user who made the request
+    if (swap.requester.toString() === userId) {
+      swap.requesterShippingPaid = true;
+    } else if (swap.receiver.toString() === userId) {
+      swap.receiverShippingPaid = true;
+    }
+    
+    await swap.save();
     
     res.json({ success: true, message: 'Payment recorded successfully' });
   } catch (error) {

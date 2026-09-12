@@ -17,7 +17,9 @@ const swapRequestSchema = new mongoose.Schema({
   deliveryMethod: { type: String },
   meetingLocation: { type: String },
   requesterConfirmed: { type: Boolean, default: false },
-  receiverConfirmed: { type: Boolean, default: false }
+  receiverConfirmed: { type: Boolean, default: false },
+  requesterShippingPaid: { type: Boolean, default: false },
+  receiverShippingPaid: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwapRequest', swapRequestSchema);

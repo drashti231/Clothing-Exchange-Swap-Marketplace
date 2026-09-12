@@ -119,6 +119,7 @@ export default function Swaps() {
     const partner = isReceived ? swap.requester : swap.receiver;
     const myItem = isReceived ? swap.requestedItem : swap.offeredItem;
     const theirItem = isReceived ? swap.offeredItem : swap.requestedItem;
+    const hasPaidShipping = isReceived ? swap.receiverShippingPaid : swap.requesterShippingPaid;
 
     if (!myItem || !theirItem) return null;
 
@@ -215,7 +216,7 @@ export default function Swaps() {
                     Chat
                   </button>
                 )}
-                {swap.status === 'accepted' && swap.deliveryMethod?.toLowerCase() === 'shipping' && (
+                {swap.status === 'accepted' && swap.deliveryMethod?.toLowerCase() === 'shipping' && !hasPaidShipping && (
                   <button 
                     onClick={() => handlePayment(swap._id)}
                     disabled={actionLoading === swap._id}
@@ -223,6 +224,11 @@ export default function Swaps() {
                   >
                     Pay Shipping
                   </button>
+                )}
+                {swap.status === 'accepted' && swap.deliveryMethod?.toLowerCase() === 'shipping' && hasPaidShipping && (
+                  <span className="flex items-center justify-center flex-1 sm:flex-none px-5 py-1.5 bg-green-100 text-green-700 rounded-md text-xs font-semibold">
+                    Shipping Paid <Check className="w-4 h-4 ml-1" />
+                  </span>
                 )}
                 {swap.status === 'accepted' && (
                   <button 
@@ -268,6 +274,18 @@ export default function Swaps() {
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Delivery Method</span>
               <p className="font-medium text-gray-800 mt-1 capitalize">{selectedSwap.deliveryMethod || 'Not specified'}</p>
             </div>
+            {selectedSwap.deliveryMethod?.toLowerCase() === 'shipping' && (
+              <div>
+                <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Shipping Payment</span>
+                <p className="font-medium text-gray-800 mt-1">
+                  {(isReceived ? selectedSwap.receiverShippingPaid : selectedSwap.requesterShippingPaid) ? (
+                    <span className="text-success-tag flex items-center"><Check className="w-4 h-4 mr-1" /> Paid</span>
+                  ) : (
+                    <span className="text-warning-tag">Pending</span>
+                  )}
+                </p>
+              </div>
+            )}
             <div>
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Initial Message</span>
               <p className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mt-1 italic">
