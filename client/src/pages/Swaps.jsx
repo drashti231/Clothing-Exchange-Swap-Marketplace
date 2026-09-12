@@ -295,7 +295,6 @@ export default function Swaps() {
                     )}
                   </p>
                 </div>
-              </>
             )}
             <div>
               <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Initial Message</span>
