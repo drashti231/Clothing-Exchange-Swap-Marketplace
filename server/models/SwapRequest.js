@@ -7,8 +7,6 @@ const swapRequestSchema = new mongoose.Schema({
   offeredItem: { type: mongoose.Schema.Types.ObjectId, ref: 'ClothingItem', required: true },
   counterOfferItem: { type: mongoose.Schema.Types.ObjectId, ref: 'ClothingItem' },
   initialMessage: { type: String },
-  requesterTrackingNumber: { type: String },
-  receiverTrackingNumber: { type: String },
   status: { 
     type: String, 
     enum: ['pending', 'accepted', 'rejected', 'cancelled', 'completed', 'disputed'], 
