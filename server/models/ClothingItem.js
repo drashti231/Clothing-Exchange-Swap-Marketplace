@@ -24,7 +24,8 @@ const clothingItemSchema = new mongoose.Schema({
   deliveryOptions: [{ type: String }], // Local meetup, courier
   status: { type: String, enum: ['available', 'reserved', 'swapped'], default: 'available' },
   isReported: { type: Boolean, default: false },
-  isVerified: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false },
+  exchangePreferences: { type: String }
 }, { timestamps: true });
 
 clothingItemSchema.index({ location: '2dsphere' });

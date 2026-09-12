@@ -7,6 +7,14 @@ const categoryBaseValues = {
   'Ethnic Wear': 1400,
   'Footwear': 1300,
   'Accessories': 600,
+  'Tops': 500,
+  'Dresses': 1200,
+  'Shirts': 700,
+  'Pants': 900,
+  'Jackets': 1600,
+  'Skirts': 800,
+  'Shoes': 1300,
+  'Other': 600,
 };
 
 const brandMultipliers = {

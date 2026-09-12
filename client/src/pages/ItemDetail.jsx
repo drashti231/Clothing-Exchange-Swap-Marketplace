@@ -266,6 +266,16 @@ export default function ItemDetail() {
                   {item.description || 'No description provided.'}
                 </div>
               </div>
+              
+              {/* Exchange Preferences */}
+              {item.exchangePreferences && (
+                <div className="mb-8 p-4 bg-brand-light rounded-lg border border-border-subtle">
+                  <h3 className="font-bold text-sm text-brand-dark mb-1">What the owner wants in exchange</h3>
+                  <div className="text-text-main text-sm">
+                    {item.exchangePreferences}
+                  </div>
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-4 mb-8">
@@ -450,25 +460,45 @@ export default function ItemDetail() {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-border-subtle bg-bg-main flex justify-end gap-3 rounded-b-xl">
-                 <button 
-                  type="button" 
-                  onClick={() => setShowModal(false)}
-                  className="px-6 py-2.5 rounded-md font-semibold text-text-main bg-white border border-border-subtle hover:bg-brand-light transition"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={submitting || !selectedMyItem}
-                  className="px-6 py-2.5 rounded-md font-semibold text-white bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-primary transition shadow-sm flex items-center"
-                >
-                  {submitting ? (
-                    <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
-                  ) : (
-                    'Send Request'
-                  )}
-                </button>
+              <div className="p-6 border-t border-border-subtle bg-bg-main flex flex-col gap-4 rounded-b-xl">
+                {selectedMyItem && (
+                  <div className="flex flex-col md:flex-row gap-4 p-4 bg-white border border-border-subtle rounded-lg shadow-sm">
+                    <div className="flex-1 flex flex-col items-center text-center">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Their Item</span>
+                      <img src={item.images?.[0] || 'https://via.placeholder.com/150'} className="w-12 h-12 rounded object-cover border mb-2" />
+                      <span className="text-xs font-semibold text-brand-dark">{item.title}</span>
+                    </div>
+                    <div className="hidden md:flex items-center justify-center">
+                       <ArrowRightLeft className="w-5 h-5 text-text-muted" />
+                    </div>
+                    <div className="flex-1 flex flex-col items-center text-center">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Your Offer</span>
+                      <img src={selectedMyItem.images?.[0] || 'https://via.placeholder.com/150'} className="w-12 h-12 rounded object-cover border border-brand-primary mb-2" />
+                      <span className="text-xs font-semibold text-brand-primary">{selectedMyItem.title}</span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowModal(false)}
+                    className="px-6 py-2.5 rounded-md font-semibold text-text-main bg-white border border-border-subtle hover:bg-brand-light transition"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={submitting || !selectedMyItem}
+                    className="px-6 py-2.5 rounded-md font-semibold text-white bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-primary transition shadow-sm flex items-center"
+                  >
+                    {submitting ? (
+                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+                    ) : (
+                      'Send Swap Request'
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

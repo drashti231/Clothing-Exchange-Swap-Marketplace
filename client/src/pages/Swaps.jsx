@@ -225,6 +225,15 @@ export default function Swaps() {
                 >
                   View
                 </button>
+                {swap.status === 'pending' && !isReceived && (
+                  <button 
+                    onClick={() => handleUpdateStatus(swap._id, 'cancelled')}
+                    disabled={actionLoading === swap._id}
+                    className="flex-1 sm:flex-none px-5 py-1.5 border border-danger-tag text-danger-tag rounded-md text-xs font-semibold hover:bg-red-50 transition-all disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                )}
                 {(swap.status === 'accepted' || swap.status === 'pending') && (
                   <button 
                     onClick={async () => {

@@ -23,7 +23,8 @@ export default function ListItem() {
     city: user?.city || '',
     state: user?.state || '',
     postalCode: user?.postalCode || '',
-    deliveryOptions: ['Local meetup']
+    deliveryOptions: ['Local meetup'],
+    exchangePreferences: ''
   });
 
   const [images, setImages] = useState([]);
@@ -206,10 +207,14 @@ export default function ListItem() {
                   <select name="category" value={formData.category} onChange={handleChange} className={inputClasses}>
                     <option value="Tops">Tops</option>
                     <option value="Dresses">Dresses</option>
+                    <option value="Shirts">Shirts</option>
                     <option value="Jeans">Jeans</option>
+                    <option value="Pants">Pants</option>
                     <option value="Jackets">Jackets</option>
-                    <option value="Footwear">Footwear</option>
+                    <option value="Skirts">Skirts</option>
+                    <option value="Shoes">Shoes</option>
                     <option value="Accessories">Accessories</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
@@ -264,6 +269,10 @@ export default function ListItem() {
                   <label className={labelClasses}>Color</label>
                   <input required name="color" value={formData.color} onChange={handleChange} className={inputClasses} placeholder="e.g. Black, Navy, White" />
                 </div>
+              </div>
+              <div>
+                <label className={labelClasses}>What do you want in exchange?</label>
+                <textarea name="exchangePreferences" value={formData.exchangePreferences} onChange={handleChange} rows="3" className={`${inputClasses} resize-none`} placeholder="Example: Looking for dresses, jackets, hoodies..." />
               </div>
             </div>
           )}

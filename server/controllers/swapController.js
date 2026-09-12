@@ -226,19 +226,18 @@ exports.updateSwapStatus = async (req, res) => {
       await sendNotification(notifyTarget, 'swap_cancelled', 'Swap Cancelled', 'A swap request was cancelled.', swapRequest.requestedItem, swapRequest._id);
     }
     else if (status === 'completed') {
-      // Both parties must confirm
-      if (isRequester) swapRequest.requesterConfirmed = true;
-      if (isReceiver) swapRequest.receiverConfirmed = true;
+      if (swapRequest.status !== 'accepted') return res.status(400).json({ message: 'Swap must be accepted first' });
+      
+      swapRequest.status = 'completed';
+      
+      // Mark items as swapped
+      await ClothingItem.updateMany(
+        { _id: { $in: [swapRequest.requestedItem, swapRequest.offeredItem] } },
+        { status: 'swapped' }
+      );
 
-      if (swapRequest.requesterConfirmed && swapRequest.receiverConfirmed) {
-        swapRequest.status = 'completed';
-        // Mark items as swapped
-        await ClothingItem.updateMany(
-          { _id: { $in: [swapRequest.requestedItem, swapRequest.offeredItem] } },
-          { status: 'swapped' }
-        );
-        // Increment completed swaps for both users (omitted user saving logic here for brevity, but could be added)
-      }
+      const notifyTarget = isRequester ? swapRequest.receiver : swapRequest.requester;
+      await sendNotification(notifyTarget, 'swap_completed', 'Swap Completed', 'The swap was marked as completed!', swapRequest.requestedItem, swapRequest._id);
     }
     else if (status === 'counteroffer') {
       if (!isReceiver) return res.status(403).json({ message: 'Only receiver can counteroffer' });

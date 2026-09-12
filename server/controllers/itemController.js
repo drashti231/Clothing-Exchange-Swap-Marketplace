@@ -26,6 +26,7 @@ exports.createItem = async (req, res) => {
       latitude,
       longitude,
       deliveryOptions,
+      exchangePreferences,
     } = req.body;
 
     // Handle images from multer
@@ -63,6 +64,7 @@ exports.createItem = async (req, res) => {
         coordinates: [longitude || 0, latitude || 0]
       },
       deliveryOptions: typeof deliveryOptions === 'string' ? deliveryOptions.split(',') : deliveryOptions,
+      exchangePreferences,
     });
 
     const createdItem = await item.save();
@@ -100,7 +102,7 @@ exports.updateItem = async (req, res) => {
     }
 
     // Update fields
-    const fieldsToUpdate = ['title', 'description', 'category', 'clothingType', 'brand', 'size', 'color', 'condition', 'originalPrice', 'city', 'state', 'postalCode'];
+    const fieldsToUpdate = ['title', 'description', 'category', 'clothingType', 'brand', 'size', 'color', 'condition', 'originalPrice', 'city', 'state', 'postalCode', 'exchangePreferences'];
     fieldsToUpdate.forEach(field => {
       if (req.body[field] !== undefined) {
         item[field] = req.body[field];
