@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, ShoppingBag, RefreshCw, MapPin, UploadCloud, Search, Heart, ShieldCheck, Leaf, UsersRound, Ban } from 'lucide-react';
+import { Users, ShoppingBag, RefreshCw, MapPin, UploadCloud, Search, Heart, ShieldCheck, Leaf, UsersRound, Ban, Star, ArrowRight } from 'lucide-react';
 import SwapMatch from '../components/SwapMatch';
+import ItemCard from '../components/ItemCard';
+import api from '../utils/api';
 
 export default function Home() {
+  const [recentItems, setRecentItems] = useState([]);
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        const { data } = await api.get('/items?limit=4&status=available');
+        setRecentItems(data.items || []);
+      } catch (error) {
+        console.error("Failed to fetch recent items", error);
+      }
+    };
+    fetchRecent();
+  }, []);
   const categories = [
     { name: "Tops", image: "https://images.unsplash.com/photo-1434389678369-182cb08eaf0c?auto=format&fit=crop&q=80&w=500" },
     { name: "Dresses", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=500" },
@@ -181,6 +196,107 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Recently Added Items */}
+      {recentItems && recentItems.length > 0 && (
+        <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-24 animate-fade-in-up delay-300">
+          <div className="flex justify-between items-end mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-brand-dark">Fresh on ReWear</h2>
+              <p className="text-text-muted mt-2 text-sm sm:text-base">Discover the latest pre-loved gems added by our community.</p>
+            </div>
+            <Link to="/marketplace" className="text-brand-primary font-semibold hover:underline text-sm flex items-center group hidden sm:flex">
+              View all latest
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {recentItems.map((item) => (
+              <ItemCard key={item._id} item={item} />
+            ))}
+          </div>
+          
+          <div className="mt-8 text-center sm:hidden">
+            <Link to="/marketplace" className="inline-flex items-center text-brand-primary font-semibold hover:underline text-sm group">
+              View all latest
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials */}
+      <section className="bg-brand-light w-full mt-24 py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-dark mb-3">Loved by Fashion Enthusiasts</h2>
+            <p className="text-text-muted text-base">Hear what our community has to say about swapping.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-subtle hover:shadow-md transition-shadow">
+              <div className="flex text-warning-tag mb-4">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+              </div>
+              <p className="text-text-main italic mb-6">"I completely refreshed my winter wardrobe without spending a dime. The swapping process is so smooth and safe!"</p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-lg">S</div>
+                <div className="ml-3">
+                  <p className="font-bold text-brand-dark text-sm">Sarah J.</p>
+                  <p className="text-xs text-text-muted">Swapped 12 items</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-subtle hover:shadow-md transition-shadow">
+              <div className="flex text-warning-tag mb-4">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+              </div>
+              <p className="text-text-main italic mb-6">"Such a great initiative for sustainable fashion. I love finding unique vintage pieces here that nobody else has."</p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-brand-accent text-white flex items-center justify-center font-bold text-lg">M</div>
+                <div className="ml-3">
+                  <p className="font-bold text-brand-dark text-sm">Maya R.</p>
+                  <p className="text-xs text-text-muted">Swapped 5 items</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-border-subtle hover:shadow-md transition-shadow">
+              <div className="flex text-warning-tag mb-4">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+              </div>
+              <p className="text-text-main italic mb-6">"The points system makes everything so fair. It feels great to declutter my closet and get clothes I actually wear!"</p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-danger-tag text-white flex items-center justify-center font-bold text-lg">K</div>
+                <div className="ml-3">
+                  <p className="font-bold text-brand-dark text-sm">Karan P.</p>
+                  <p className="text-xs text-text-muted">Swapped 8 items</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-24 mb-8">
+        <div className="bg-brand-dark rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-brand-primary rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-brand-accent rounded-full blur-3xl opacity-20"></div>
+          
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to clear out your closet?</h2>
+            <p className="text-brand-light text-base md:text-lg max-w-2xl mx-auto mb-8 opacity-90">
+              Join thousands of users who are swapping clothes, reducing fashion waste, and saving money every single day.
+            </p>
+            <Link to="/list-item" className="inline-block bg-white text-brand-dark px-8 py-3.5 rounded-full font-bold text-lg hover:bg-brand-light hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+              Start Swapping Now
+            </Link>
+          </div>
         </div>
       </section>
 
