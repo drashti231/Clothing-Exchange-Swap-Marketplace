@@ -145,7 +145,7 @@ For project review, use the following demo credentials to explore the Admin Pane
 
 # 🔄 User Flow
 
-```text
+text
 Register/Login
       ↓
 Create Profile
@@ -163,7 +163,7 @@ Chat & Negotiate
 Accept Swap
       ↓
 Complete Exchange
-```
+
 
 ---
 
@@ -171,45 +171,45 @@ Complete Exchange
 
 ## 🏠 Home Page
 
-```md
+
 ![Home](docs/screenshots/home.png)
-```
+
 
 ## 👗 Marketplace
 
-```md
+
 ![Marketplace](docs/screenshots/marketplace.png)
-```
+
 
 ## 🔎 Item Details
 
-```md
+
 ![Details](docs/screenshots/details.png)
-```
+
 
 ## 🔄 My Swaps
 
-```md
+
 ![Swaps](docs/screenshots/swaps.png)
-```
+
 
 ## 💬 Chat
 
-```md
+
 ![Chat](docs/screenshots/chat.png)
-```
+
 
 ## 📊 Dashboard
 
-```md
+
 ![Dashboard](docs/screenshots/dashboard.png)
-```
+
 
 ## 🛠️ Admin Panel
 
-```md
+
 ![Admin](docs/screenshots/admin.png)
-```
+
 
 ---
 
@@ -248,7 +248,7 @@ ReWear/
 ├── docs/
 ├── README.md
 └── package.json
-```
+
 
 ---
 
