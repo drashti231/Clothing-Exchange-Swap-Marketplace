@@ -43,16 +43,7 @@ Instead of buying new clothes, users can:
 
 The platform follows a **barter economy model**, encouraging clothing reuse and reducing environmental impact.
 
----
 
-# 🔐 Testing / Admin Credentials
-
-For project review, use the following demo credentials to explore the Admin Panel or test protected routes:
-
-- **Admin Email:** `admin@test.com` (Update if different)
-- **Password:** `admin123` (Update if different)
-
----
 
 # ✨ Key Features
 
