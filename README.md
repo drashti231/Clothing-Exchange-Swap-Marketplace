@@ -45,6 +45,15 @@ The platform follows a **barter economy model**, encouraging clothing reuse and 
 
 ---
 
+# 🔐 Testing / Admin Credentials
+
+For project review, use the following demo credentials to explore the Admin Panel or test protected routes:
+
+- **Admin Email:** `admin@test.com` (Update if different)
+- **Password:** `admin123` (Update if different)
+
+---
+
 # ✨ Key Features
 
 <table>
